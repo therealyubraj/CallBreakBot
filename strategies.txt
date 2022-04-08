@@ -1,0 +1,30 @@
+Bidding:
+make a NN that can bid and feed in data ourselves
+
+input will be a 52 sized array where 13 will be activated if the card is present in the deck
+the input will be in CHSD order.
+[1C, 2C, ..., 13C, 1H, 2H, ..., 13H, 1S, 2S, ..., 13S, 1D, 2D, ..., 13D]
+if our deck contains 1C, then, 1C = 0 else 0.
+
+feed this into NN and then the output is the bid value.
+
+the output is also an array of 8 size.
+the index containing highest value is the bid.
+
+or
+make a heuristical guess?
+
+possible heuristsics:
+
+certain combination of cards: Ace and king, 10 and king, queen and king
+certain cards: Ace, king, etc.
+number of cards of a suit: we can play trump and win if our cards run out, number of trump cards,
+sure fire cards: ace of spade
+
+
+Playing:
+
+problems:
+we dont know each other's cards
+
+strategies:
