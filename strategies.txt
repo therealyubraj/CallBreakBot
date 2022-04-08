@@ -28,3 +28,20 @@ problems:
 we dont know each other's cards
 
 strategies:
+
+possible playable cards:
+say the card initially played is 2H:
+then check if we have any hearts:
+	if there are hearts in our deck:
+		check if any card is higher value than the card.
+			if any card is higher:
+				check if it is worth it to play the highest card
+					if it is woth it to play the highest card: play it.
+				not worth it: play the lowest highest card.
+		if no card is higher: play the lowest card.
+if no hearts then:
+	play appropriate trump card for the situation (needs to be explained further)
+if no trump as well(shit hit the fan):
+	play the lowest possible card of any suit.
+		
+					
