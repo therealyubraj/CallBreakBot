@@ -1,2 +1,2 @@
-flask
-flask-cors
+sanic===21.12.1
+sanic-cors===2.0.1

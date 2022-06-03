@@ -43,5 +43,3 @@ if no hearts then:
 	play appropriate trump card for the situation (needs to be explained further)
 if no trump as well(shit hit the fan):
 	play the lowest possible card of any suit.
-		
-					
