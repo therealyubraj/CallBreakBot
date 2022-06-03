@@ -2,10 +2,13 @@ import json
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from state import State
 
 
 app = Flask(__name__)
 CORS(app)
+
+curState = State()
 
 
 @app.route("/hi", methods=["GET"])
@@ -56,14 +59,14 @@ def bid():
     """
 
     body = request.get_json()
-    print(json.dumps(body, indent=2))
+    curState.setDeck(body['cards'])
 
     ####################################
     #     Input your code here.        #
     ####################################
 
     # return should have a single field value which should be an int reprsenting the bid value
-    return jsonify({"value": 3})
+    return jsonify({"value": 1})
 
 
 @app.route("/play", methods=["POST"])
@@ -93,7 +96,19 @@ def play():
     `playerIds`: list of ids in clockwise order (always same for a game)
     """
     body = request.get_json()
-    print(json.dumps(body, indent=2))
+    body['played'] = list(map(lambda x: x[:-2], body['played']))
+
+    lastHistory = []
+
+    if len(body['history']) > 0:
+        lastHistory = body['history'][-1][1]
+        lastHistory = list(map(lambda x: x[:-2], lastHistory))
+
+    curState.addToHistory(lastHistory)
+    playableCards = curState.getPlayableCards(list(body['played']))
+
+    print(curState.deck, playableCards)
+    # print(json.dumps(body, indent=2))
 
     ####################################
     #     Input your code here.        #
