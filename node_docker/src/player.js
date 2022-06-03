@@ -19,6 +19,9 @@ export class Player {
         this.cards.forEach(c => {
             this.cardNumbers[c.suit.code]++;
         });
+        /**
+         * @type Card[]
+         */
         this.history = [];
     }
 
@@ -29,7 +32,6 @@ export class Player {
     playCard(card) {
         this.cards = this.cards.filter(c => !c.equals(card));
         this.cardNumbers[card.suit.code]--;
-        this.history.push(card);
     }
 
     /**
@@ -48,7 +50,10 @@ export class Player {
         turnCards = turnCards.map(p => new Card(p));
 
         if (turnCards.length < 1) {
-            return this.cards;
+            return {
+                'cards': this.cards,
+                'W': true
+            };
         }
 
         let playedSuit = turnCards[0].suit;
@@ -72,46 +77,86 @@ export class Player {
         console.log("highest played");
         console.log(highestCardPlayed);
 
+        // if we dont have any original cards
         if (this.cardNumbers[playedSuit.code] <= 0) {
             // now we can either play a spade if we have one or play any card if no spade in hand
             let spadeCards = this.cards.filter(c => c.suit.code == 'S');
             if (highestCardPlayed.suit.code == 'S') {
+                //if the highest card was also a spade
                 let winningSpades = spadeCards.filter(c => c.rank.value > highestCardPlayed.rank.value);
 
                 if (winningSpades.length > 0) {
-                    return winningSpades;
+                    // we have winnable cards
+                    return {
+                        'cards': winningSpades,
+                        'W': true
+                    };
                 } else {
-                    return this.cards;
+                    // we cannot win this hand
+                    return {
+                        'cards': this.cards,
+                        'W': false
+                    };
                 }
             } else {
                 if (spadeCards.length > 0) {
-                    return spadeCards;
+                    // no one has yet played a spade and we can win this hand
+                    return {
+                        'cards': spadeCards,
+                        'W': true
+                    };
                 } else {
-                    return this.cards;
+                    // we dont have any original or spade so we lost
+                    return {
+                        'cards': this.cards,
+                        'W': false
+                    };
                 }
             }
         } else {
             // if we have originally played cards, we have to check if highest card is a trump
             let allCardsForSuit = this.cards.filter(c => c.suit.code == playedSuit.code);
             if (highestCardPlayed.suit.code == 'S') {
+                // we can only win if the original card was a spade
                 if (playedSuit.code == 'S') {
                     let winningCards = allCardsForSuit.filter(c => c.rank.value > highestCardPlayed.rank.value);
 
                     if (winningCards.length > 0) {
-                        return winningCards;
+                        // if the original cards were spades and we have winning cards we can win
+                        return {
+                            'cards': winningCards,
+                            'W': true
+                        };
                     } else {
-                        return allCardsForSuit;
+                        // we cannot win
+                        return {
+                            'cards': allCardsForSuit,
+                            'W': false
+                        };
                     }
                 } else {
-                    return allCardsForSuit;
+                    // someone already played a trump and we cannot win                    
+                    return {
+                        'cards': allCardsForSuit,
+                        'W': false
+                    };
                 }
             } else {
+                //original cards was not spade and no one played spade yet aka normal rounds
                 let winningCards = allCardsForSuit.filter(c => c.rank.value > highestCardPlayed.rank.value);
 
                 if (winningCards.length > 0) {
-                    return winningCards;
+                    //can win
+                    return {
+                        'cards': winningCards,
+                        'W': true
+                    };
                 } else {
-                    return allCardsForSuit;
+                    //cannot win here
+                    return {
+                        'cards': allCardsForSuit,
+                        'W': false
+                    };
                 }
             }
 
