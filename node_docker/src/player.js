@@ -34,6 +34,14 @@ export class Player {
 
     /**
      * 
+     * @param {Card[]} cards 
+     */
+    addToHistory(cards) {
+        cards.forEach(c => this.history.push(new Card(c)));
+    }
+
+    /**
+     * 
      * @param {Card[]} turnCards 
      */
     getAllPlayableCards(turnCards) {

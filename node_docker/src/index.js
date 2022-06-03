@@ -7,7 +7,9 @@ import {
 import {
     Player
 } from "./player.js";
-
+import {
+    bestMoveChooser
+} from './search.js';
 /**
  * @type Player
  */
@@ -189,8 +191,13 @@ function play(payload) {
     #     Input your code here.        #
     ####################################
     */
-    let allPlayable = players[json.playerId].getAllPlayableCards(json.played);
-    const playCard = allPlayable[Math.floor(Math.random() * allPlayable.length)];
+    const playCard = bestMoveChooser(players[json.playerId], json.played);
+
+    if (json.history.length > 0) {
+        console.log(json.history[json.history.length - 1][1]);
+        players[json.playerId].addToHistory(json.history[json.history.length - 1][1]);
+    }
+
     players[json.playerId].playCard(playCard);
     //  return should have a single field value
     //  which should be an int reprsenting the index of the card to play
