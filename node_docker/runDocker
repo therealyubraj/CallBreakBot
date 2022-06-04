@@ -1,0 +1,2 @@
+docker build . -t new_first
+docker run -p 7000:7000 -m=2048m --cpus=1 -it new_first

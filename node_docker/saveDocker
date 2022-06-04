@@ -1,0 +1,2 @@
+docker build . -t new_first
+docker save new_first | gzip> new_first.de

@@ -24,6 +24,7 @@ export const Rank = {
 
 export class Card {
     constructor(cardString) {
+        this.cardString = cardString;
         this.rank = Card.getRank(cardString);
         this.suit = Card.getSuit(cardString);
     }
@@ -53,7 +54,7 @@ export class Card {
     }
 
     toString() {
-        return this.rank.code + this.suit.code;
+        return this.cardString;
     }
 
     equals(other) {
