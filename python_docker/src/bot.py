@@ -11,8 +11,6 @@ from card import Card, RANK, SUIT
 
 def start_best_move(handCard: List[Card], move_count: int):
     
-    print("------- i have never been so confused")
-    
     # if we have ace or king, sent it
     for card in handCard:
         if card.rank == RANK["ACE"]:
@@ -21,13 +19,10 @@ def start_best_move(handCard: List[Card], move_count: int):
     normal_cards = [card for card in handCard if card.suit["value"] != SUIT["SPADE"]["value"]]
     spade_cards = [card for card in handCard if card.suit["value"] == SUIT["SPADE"]["value"]]
     
-    if move_count > 8:
-        return handCard[-1]
-    else :
-        if normal_cards:
-            return normal_cards[0]
-        else:
-            return spade_cards[0]
+    if normal_cards:
+        return normal_cards[0]
+    else:
+        return spade_cards[0]
 
 
 
@@ -55,7 +50,7 @@ def get_highest_played_card(played: List[Card]):
 
 
 
-def get_play_card(played_str_arr: List[str], cards_str_arr: List[str], history):
+def get_play_card(played_str_arr: List[str], cards_str_arr: List[str], history, game_board):
     played_cards = parse_card_arr(played_str_arr)
     cards = parse_card_arr(cards_str_arr)
     cards = sorted(cards, key=lambda card: card.rank["value"])
@@ -69,6 +64,20 @@ def get_play_card(played_str_arr: List[str], cards_str_arr: List[str], history):
     selected_card = None
     highest_card = get_highest_played_card(played_cards)
     same_suit_cards = [card for card in cards if card.suit["value"] == highest_card.suit["value"]]
+    
+    
+    winning_cards = game_board.get_winning_cards(   suit=highest_card.suit["code"], 
+                                                    cur_card=highest_card,
+                                                    cards_in_hand=set(cards_str_arr),
+                                                    last_turn=len(played_str_arr)==3)
+    
+    if winning_cards:
+        print("-------------- I am gonna win yipee")
+        # for x in winning_cards:
+        #     print(x, end="\n")
+        
+        return winning_cards[-1]
+    
 
     # select higher card of same suit
     for card in same_suit_cards:
@@ -90,19 +99,18 @@ def get_play_card(played_str_arr: List[str], cards_str_arr: List[str], history):
 
         for card in cards:
             if opponent_spade:
-                if card.rank["value"] > opponent_spade.rank["value"]:
-                    print("--------- omg is this busted?")
+                if  card.suit["value"] == SUIT["SPADE"]["value"] and card.rank["value"] > opponent_spade.rank["value"]:
                     selected_card = card
                     break
+                
             elif card.suit["value"] == SUIT["SPADE"]["value"]:
-                # TODO: maybe play a low-rank spade card if opponents have not played spade
-                print("--------- omg the error is here")
+                # TODO: maybe play a low-rank spade card if opponents have not played spade=
                 selected_card = card
 
     # no spade card in hand; use any card
     if selected_card is None:
-        print("--------- bruh are you for real?")
         # TODO: maybe play a low-rank card if no winning card exists
+        
         selected_card = cards[0]
 
     return selected_card
@@ -119,12 +127,22 @@ def get_bid(cardsStrArr: List[str]):
     count = 0
     
     # count aces and king and use that as bid value
-    for card in cards:
-        if card.rank == RANK["ACE"]: 
+    for suit in ["H", "D", "C", "S"]:
+        card_filter = [card.rank for card in cards if card.suit["code"] == suit]
+        
+        if RANK["ACE"] in card_filter:
             count += 1
-        if card.rank == RANK["KING"]:
-            count += 0.5
-            
+        
+        if RANK["KING"] in card_filter:
+            if RANK["ACE"] in card_filter:
+                count += 1
+            elif RANK["QUEEN"] in card_filter:
+                count += 1
+        
+        if suit =="S" and len(card_filter) > 5:
+            count += len(card_filter) - 5 
+    
+    
     count = int(count)
     
     # 8 is maximum allowed bid

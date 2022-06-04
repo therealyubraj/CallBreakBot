@@ -1,3 +1,5 @@
+import numpy as np
+
 SUIT = {
     "HEART": {"value": 2, "code": "H"},
     "CLUB": {"value": 3, "code": "C"},
@@ -71,3 +73,59 @@ class Card:
 
     def __str__(self) -> str:
         return self.rank["code"] + self.suit["code"]
+
+
+
+class card_history:
+
+    
+    def __init__(self):
+        self.heart_cards = np.array(["1H", "KH", "QH", "JH", "TH", "9H", "8H", "7H", "6H", "5H", "4H", "3H", "2H"])
+        self.club_cards = np.array(["1C", "KC", "QC", "JC", "TC", "9C", "8C", "7C", "6C", "5C", "4C", "3C", "2C"])
+        self.diamond_cards = np.array(["1D", "KD", "QD", "JD", "TD", "9D", "8D", "7D", "6D", "5D", "4D", "3D", "2D"])
+        self.spade_cards = np.array(["1S", "KS", "QS", "JS", "TS", "9S", "8S", "7S", "6S", "5S", "4S", "3S", "2S"])
+    
+    
+    
+    def update_history(self, cards):
+        for card in cards:
+            if card[1] == "H":
+                if card in self.heart_cards:
+                    self.heart_cards = self.heart_cards[self.heart_cards != card]
+                
+            if card[1] == "C":
+                if card in self.club_cards:
+                    self.club_cards = self.club_cards[self.club_cards != card]
+            
+            if card[1] == "D":
+                if card in self.diamond_cards:
+                    self.diamond_cards = self.diamond_cards[self.diamond_cards != card]
+            
+            if card[1] == "S":
+                if card in self.spade_cards:
+                    self.spade_cards = self.spade_cards[self.spade_cards != card]
+    
+    
+    
+    def get_winning_cards(self, suit, cur_card,  cards_in_hand, last_turn=False):
+        self.winning_cards = []
+        
+        if suit == "H": self.card_list = self.heart_cards
+        elif suit == "C": self.card_list = self.club_cards
+        elif suit == "D": self.card_list = self.diamond_cards
+        else: self.card_list = self.spade_cards
+        
+        for card in self.card_list:
+            if card in cards_in_hand:
+                self.winning_cards.append(Card(card))
+                
+            elif last_turn:
+                if Card(card).rank["value"] > cur_card.rank["value"]:
+                    self.winning_cards.append(Card(card))
+                else:
+                    break
+                
+            else:
+                break
+        
+        return self.winning_cards

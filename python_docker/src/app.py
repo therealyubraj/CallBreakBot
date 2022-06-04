@@ -1,4 +1,5 @@
 import os
+import asyncio
 
 from sanic import Sanic
 from sanic.response import json
@@ -6,15 +7,18 @@ from sanic.request import Request
 from sanic_cors import CORS
 
 from bot import get_bid, get_play_card
+from card import card_history
 
 # to enable debug, run app with `DEBUG=1 python src/app.py`
-DEBUG = int(os.getenv("DEBUG")) or False
-# DEBUG = True
+# DEBUG = int(os.getenv("DEBUG")) or False
+DEBUG = True
 
 app = Sanic(__name__)
 CORS(app)
 
 old_print = print
+
+game_history = {}
 
 
 
@@ -50,6 +54,8 @@ def hi(request: Request):
 
 @app.route("/bid", methods=["POST"])
 def bid(request: Request):
+    global game_history
+    
     """
     Bid is called at the starting phase of the game in callbreak.
     You will be provided with the following data:
@@ -103,6 +109,7 @@ def bid(request: Request):
     bid = get_bid(body["cards"])
     print(f"Returning bid: {bid}")
     
+    game_history[body["playerId"]] = card_history()
 
     # return should have a single field value which should be an int reprsenting the bid value
     return json({"value": bid})
@@ -114,6 +121,8 @@ def bid(request: Request):
 
 @app.route("/play", methods=["POST"])
 def play(request: Request):
+    global game_history
+    
     """
     Play is called at every hand of the game where the user should throw a card.
     Request data format:
@@ -173,6 +182,12 @@ def play(request: Request):
     body = request.json
     print("Play called")
     print(body)
+    
+    game_history[body["playerId"]].update_history(cards=body["played"])
+    
+    if len(body["history"]):
+        game_history[body["playerId"]].update_history(cards=body["history"][-1][1])
+
 
     ####################################
     #     Input your code here.        #
@@ -180,10 +195,12 @@ def play(request: Request):
     play_card = get_play_card(
         played_str_arr=body["played"], 
         cards_str_arr=body["cards"],
-        history=body["history"]
+        history=body["history"],
+        game_board = game_history[body["playerId"]]
     )
-    
+
     print(f"Returning play: {play_card}")
+
 
     # return should have a single field value
     # which should be an int reprsenting the index of the card to play
