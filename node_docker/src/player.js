@@ -1,5 +1,6 @@
 import {
-    Card
+    Card,
+    Rank
 } from "./card.js";
 
 export class Player {
@@ -40,6 +41,65 @@ export class Player {
      */
     addToHistory(cards) {
         cards.forEach(c => this.history.push(new Card(c)));
+    }
+
+    getBid() {
+        let count = 0;
+
+        let spades = this.cardNumbers['S'];
+        Object.keys(this.cardNumbers).forEach(c => {
+            if (c != 'S' && spades >= 3 && this.cardNumbers[c] < 3) {
+                count++;
+            }
+        });
+
+        if (spades >= 5) {
+            count += spades - 4;
+        }
+
+        // count aces use that as bid value
+        for (let i = 0; i < this.cards.length; i++) {
+            let card = this.cards[i];
+            if (card.rank.value === Rank.ACE.value) {
+                if (card.suit.code == 'S') {
+                    count++;
+                } else if (this.cardNumbers[card.suit.code] < 7) {
+                    count++;
+                }
+            }
+        }
+
+        // count if we have both of king and queen/jack/ace of same suit
+        for (let i = 0; i < this.cards.length; i++) {
+            let card = this.cards[i];
+            if (card.rank.value === Rank.KING.value && this.cardNumbers[card.suit.code] < 5) {
+                let kingCanWin = false;
+                for (let j = 0; j < this.cards.length; j++) {
+                    let otherCard = this.cards[j];
+                    if (otherCard.rank.value === Rank.QUEEN.value && otherCard.suit.code === card.suit.code) {
+                        kingCanWin = true;
+                        break;
+                    }
+                    if (otherCard.rank.value === Rank.JACK.value && otherCard.suit.code === card.suit.code) {
+                        kingCanWin = true;
+                        break;
+                    }
+                    if (otherCard.rank.value === Rank.ACE.value && otherCard.suit.code === card.suit.code) {
+                        kingCanWin = true;
+                        break;
+                    }
+                }
+
+                if (kingCanWin) {
+                    count++;
+                }
+            }
+        }
+
+        // cap count at 1 to 5.
+        count = Math.min(Math.max(1, count), 4);
+
+        return count;
     }
 
     /**
