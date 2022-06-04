@@ -123,20 +123,47 @@ export function getBid(cardsStrArr) {
 
     let spades = cardNumbers['S'];
     Object.keys(cardNumbers).forEach(c => {
-        if (c != 'S' && spades > 3 && cardNumbers[c] < 3) {
+        if (c != 'S' && spades >= 3 && cardNumbers[c] < 3) {
             count++;
         }
     });
 
-    if (spades > 5) {
-        count++;
+    if (spades >= 5) {
+        count += spades - 4;
     }
 
-    // count aces and king and use that as bid value
+    // count aces use that as bid value
     for (let i = 0; i < cards.length; i++) {
         let card = cards[i];
         if (card.rank.value === Rank.ACE.value && cardNumbers[card.suit.code] < 7) {
             count++;
+        }
+    }
+
+    // count if we have both of king and queen/jack/ace of same suit
+    for (let i = 0; i < cards.length; i++) {
+        let card = cards[i];
+        if (card.rank.value === Rank.KING.value && cardNumbers[card.suit.code] < 5) {
+            let kingCanWin = false;
+            for (let j = 0; j < cards.length; j++) {
+                let otherCard = cards[j];
+                if (otherCard.rank.value === Rank.QUEEN.value && otherCard.suit.code === card.suit.code) {
+                    kingCanWin = true;
+                    break;
+                }
+                if (otherCard.rank.value === Rank.JACK.value && otherCard.suit.code === card.suit.code) {
+                    kingCanWin = true;
+                    break;
+                }
+                if (otherCard.rank.value === Rank.ACE.value && otherCard.suit.code === card.suit.code) {
+                    kingCanWin = true;
+                    break;
+                }
+            }
+
+            if (kingCanWin) {
+                count++;
+            }
         }
     }
 
