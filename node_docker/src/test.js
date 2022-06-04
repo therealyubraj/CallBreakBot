@@ -3,7 +3,7 @@ import {
 } from './player.js';
 
 import {
-    monteCarlo
+    bestMoveChooser
 } from './search.js';
 
 let cards = [
@@ -12,16 +12,14 @@ let cards = [
     "KC",
     "4C",
     "2C",
-    "1D",
-    "JD"
+    "KD",
+    "9D"
 ];
 
 let turnCards = [
-    "5D",
-    "TD",
-    "3D"
+    "7D"
 ];
 
 
 let a = new Player(cards);
-console.log(monteCarlo(a, turnCards));
+console.log(bestMoveChooser(a, turnCards));
