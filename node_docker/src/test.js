@@ -6,9 +6,11 @@ import {
     bestMoveChooser
 } from './search.js';
 
-let cards = ["QS", "7S", "6S", "3S", "2S", "TH", "9H", "8H", "5H", "1C", "TC", "KD", "JD"];
+let cards = ["QS", "7S", "6S", "3S", "2S", "TH", "9H", "8H", "5H", "1C", "TC"];
 
-let turnCards = [];
+let turnCards = [
+    "2D"
+];
 
 let history = [
 

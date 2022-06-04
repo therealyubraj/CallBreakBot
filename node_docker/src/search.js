@@ -29,6 +29,21 @@ export function bestMoveChooser(pl, turnCards) {
         return ourPossibleMoves[0];
     }
 
+    // check if the win is by playing spades on other suits
+    if (turnCards.length > 0) {
+        let origSuit = new Card(turnCards[0]).suit;
+        console.log(turnCards, turnCards[0]);
+        if (origSuit.code != 'S') {
+            // check if we can win by playing spades on other suits
+            let spades = ourPossibleMoves.filter(c => c.suit.code == 'S');
+            if (spades.length > 0) {
+                // return lowest spade
+                return spades.reduce((a, b) => a.rank.value > b.rank.value ? b : a);
+            }
+        }
+    }
+
+
     console.log("HERUSITSICS");
     // check if any card not yet played can beat our card
     let allValues = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K'];
