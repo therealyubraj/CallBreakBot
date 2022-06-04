@@ -53,7 +53,7 @@ export class Player {
             }
         });
 
-        if (spades >= 5) {
+        if (spades > 5) {
             count += spades - 4;
         }
 

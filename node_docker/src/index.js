@@ -7,6 +7,7 @@ import {
 import {
     bestMoveChooser
 } from './search.js';
+
 /**
  * @type <string, Player>
  */

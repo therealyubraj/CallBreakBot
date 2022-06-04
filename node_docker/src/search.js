@@ -34,6 +34,7 @@ export function bestMoveChooser(pl, turnCards) {
     let allValues = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K'];
 
     let disturbingCards = [];
+    let sureWinnings = [];
 
     for (let i = 0; i < ourPossibleMoves.length; i++) {
         let thisCard = ourPossibleMoves[i];
@@ -68,29 +69,44 @@ export function bestMoveChooser(pl, turnCards) {
         let unplayedHigher = unplayedCards.filter(c => c.rank.value > thisCard.rank.value);
         if (unplayedHigher.length == 0) {
             console.log("WE CAN WIN");
-            return thisCard;
+            sureWinnings.push(thisCard);
+            // return thisCard;
         }
         //add to disturbing cards
-        disturbingCards.push(unplayedHigher);
+        if (unplayedHigher.length > 0) {
+            disturbingCards.push(unplayedHigher);
+        }
     }
 
     console.log("No heuristsics succeeded");
 
     // try to bait the opponent into throwing disturbing cards
-    //filter disturbing cards by the length == 1
-    let toBait = disturbingCards.filter(c => c.length == 1);
-    console.log(toBait.length);
-    if (toBait.length > 0) {
-        for (let i = 0; i < toBait.length; i++) {
-            let toBaitCard = toBait[i][0];
-            // play the second highest card for the suit of the toBait card from ourPossibleMoves
-            let ourPossibleMovesSuit = ourPossibleMoves.filter(c => c.suit.code == toBaitCard.suit.code);
-            let ourPossibleMovesSuitSorted = ourPossibleMovesSuit.sort((a, b) => b.rank.value - a.rank.value);
-            if (ourPossibleMovesSuitSorted.length > 1) {
-                console.log("BAITING OPPONENT");
-                return ourPossibleMovesSuitSorted[1];
+    //filter disturbing cards by the min length 
+    if (disturbingCards.length > 0) {
+        let minLength = disturbingCards.reduce((a, b) => a.length < b.length ? a : b).length;
+        let toBait = disturbingCards.filter(c => c.length == minLength);
+        console.log(toBait);
+        if (toBait.length > 0) {
+            for (let i = 0; i < toBait.length; i++) {
+                console.log(i);
+                let toBaitCard = toBait[i][0];
+                // play the second highest card for the suit of the toBait card from ourPossibleMoves
+                let ourPossibleMovesSuit = ourPossibleMoves.filter(c => c.suit.code == toBaitCard.suit.code);
+                let ourPossibleMovesSuitSorted = ourPossibleMovesSuit.sort((a, b) => b.rank.value - a.rank.value);
+                console.log(ourPossibleMovesSuitSorted);
+                if (ourPossibleMovesSuitSorted.length > 1 && ourPossibleMovesSuitSorted[0].rank.value < toBaitCard.rank.value) {
+                    console.log("BAITING OPPONENT");
+                    return ourPossibleMovesSuitSorted[1];
+                }
             }
         }
     }
+
+    // play the sure winnings
+    if (sureWinnings.length > 0) {
+        console.log("PLAYING SURE WINNINGS");
+        return sureWinnings.reduce((a, b) => a.rank.value > b.rank.value ? b : a);
+    }
+
     return ourPossibleMoves.reduce((a, b) => a.rank.value > b.rank.value ? b : a);
 }
