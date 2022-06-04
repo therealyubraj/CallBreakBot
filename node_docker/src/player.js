@@ -48,9 +48,11 @@ export class Player {
         let count = 0;
 
         let spades = this.cardNumbers['S'];
+        let oneCardRunsOut = false;
         Object.keys(this.cardNumbers).forEach(c => {
-            if (c != 'S' && spades >= 3 && this.cardNumbers[c] < 3) {
+            if (!oneCardRunsOut && c != 'S' && spades >= 3 && this.cardNumbers[c] < 3) {
                 count++;
+                oneCardRunsOut = true;
             }
         });
 
