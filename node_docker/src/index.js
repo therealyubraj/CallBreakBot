@@ -2,16 +2,13 @@ import {
     createServer
 } from "http";
 import {
-    getBid
-} from "./bot.js";
-import {
     Player
 } from "./player.js";
 import {
     bestMoveChooser
 } from './search.js';
 /**
- * @type Player
+ * @type <string, Player>
  */
 let players = {};
 
@@ -118,9 +115,9 @@ function bid(payload) {
     #     Input your code here.        #
     ####################################
     */
-    const bidValue = getBid(json.cards);
 
     players[json.playerId] = new Player(json.cards);
+    const bidValue = players[json.playerId].getBid();
 
     // return should have a single field value which should be an int reprsenting the bid value
     return {
