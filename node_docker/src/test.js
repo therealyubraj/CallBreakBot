@@ -9,17 +9,18 @@ import {
 let cards = [
     "QS",
     "9S",
-    "KC",
-    "4C",
-    "2C",
     "KD",
-    "9D"
+    "JD",
+    "4D"
 ];
 
 let turnCards = [
-    "7D"
 ];
 
+let history = [
+    "1D",
+];
 
 let a = new Player(cards);
+a.addToHistory(history);
 console.log(bestMoveChooser(a, turnCards));

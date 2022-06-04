@@ -63,7 +63,7 @@ export class Player {
             if (card.rank.value === Rank.ACE.value) {
                 if (card.suit.code == 'S') {
                     count++;
-                } else if (this.cardNumbers[card.suit.code] < 7) {
+                } else if (this.cardNumbers[card.suit.code] < 6) {
                     count++;
                 }
             }
@@ -84,6 +84,10 @@ export class Player {
                         kingCanWin = true;
                         break;
                     }
+                    if (otherCard.rank.value === Rank.TEN.value && otherCard.suit.code === card.suit.code) {
+                        kingCanWin = true;
+                        break;
+                    }
                     if (otherCard.rank.value === Rank.ACE.value && otherCard.suit.code === card.suit.code) {
                         kingCanWin = true;
                         break;
@@ -97,7 +101,7 @@ export class Player {
         }
 
         // cap count at 1 to 5.
-        count = Math.min(Math.max(1, count), 4);
+        count = Math.min(Math.max(1, count), 8);
 
         return count;
     }

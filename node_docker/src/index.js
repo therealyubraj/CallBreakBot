@@ -201,8 +201,7 @@ function play(payload) {
     //  e.g> {"value": "QS"}
     //  to play the card "QS"
     console.log({
-        playCard,
-        players
+        playCard
     });
 
     return {
