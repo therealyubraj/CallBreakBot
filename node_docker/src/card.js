@@ -123,7 +123,7 @@ export class Card {
     }
 
     equals(other) {
-        return this.rank == other.rank && this.suit == other.suit;
+        return this.cardString == other.cardString;
     }
 
     sameSuit(other) {

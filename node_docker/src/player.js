@@ -5,12 +5,8 @@ import {
 
 
 export class Player {
-    /**
-     * 
-     * @param {Card[]} cards   
-     */
-    constructor(cards, pId) {
-        this.cards = cards.map(c => new Card(c));
+    constructor(pId, nextPId) {
+        this.cards = [];
         this.cardNumbers = {
             'C': 0,
             'H': 0,
@@ -18,23 +14,18 @@ export class Player {
             'D': 0
         };
 
-        this.cards.forEach(c => {
-            console.log(c);
-            this.cardNumbers[c.suit.code]++;
-        });
-        /**
-         * @type Card[]
-         */
-        this.history = [];
-        this.historyNumber = {
-            'C': 0,
-            'H': 0,
-            'S': 0,
-            'D': 0
-        };
         this.calledBid = -1;
         this.wonHands = 0;
         this.playerId = pId;
+        this.nextPlayerId = nextPId;
+    }
+
+    setCards(cards) {
+        this.cards = cards.map(c => new Card(c));
+
+        this.cards.forEach(c => {
+            this.cardNumbers[c.suit.code]++;
+        });
     }
 
     /**
@@ -48,33 +39,14 @@ export class Player {
 
     /**
      * 
-     * @param {Card[]} cards 
-     */
-    addToHistory(cards) {
-        cards.forEach(c => this.history.push(new Card(c)));
-        cards.forEach(c => this.historyNumber[c[1]]++);
-    }
-
-    /**
-     * 
      * @param {Object.<string, Integer>} allScores 
      * @returns 
      */
-    getBid(allScores) {
+    getBid() {
         let count = 0;
-        let safe = false;
-
-        //if our total score is highest, we bid safer
-        console.log(allScores);
-        // if (allScores[this.playerId] == Object.values(allScores).reduce((a, b) => a > b ? a : b)) {
-        //     safe = true;
-        //     console.log("Safe bro!");
-        // }
-
 
         let spades = this.cardNumbers['S'];
         let trumpWinPrediction = 3;
-
 
         if (spades > 5) {
             count += spades - 5;
@@ -129,7 +101,6 @@ export class Player {
         Object.keys(this.cardNumbers).forEach(c => {
             if (c != 'S' && spades >= trumpWinPrediction && this.cardNumbers[c] < 3) {
                 count++;
-                // trumpWinPrediction++;
             }
         });
 
@@ -137,6 +108,25 @@ export class Player {
         count = Math.min(Math.max(1, count), 8);
 
         return count;
+    }
+
+    static getHighestCard(turnCards) {
+        let highestCardPlayed = turnCards[0];
+        for (let i = 1; i < turnCards.length; i++) {
+            if (turnCards[i].suit.code == highestCardPlayed.suit.code) {
+                if (turnCards[i].rank.value > highestCardPlayed.rank.value) {
+                    // if this card is of same suit as the played and is ranked higher this is the new highest card
+                    highestCardPlayed = turnCards[i];
+                }
+            } else if (turnCards[i].suit.code == 'S') {
+                if (highestCardPlayed.suit.code != 'S') {
+                    highestCardPlayed = turnCards[i];
+                } else if (highestCardPlayed.rank.value < turnCards[i].rank.value) {
+                    highestCardPlayed = turnCards[i];
+                }
+            }
+        }
+        return highestCardPlayed;
     }
 
     /**
@@ -154,25 +144,7 @@ export class Player {
         }
 
         let playedSuit = turnCards[0].suit;
-        let highestCardPlayed = turnCards[0];
-
-        for (let i = 1; i < turnCards.length; i++) {
-            if (turnCards[i].suit.code == highestCardPlayed.suit.code) {
-                if (turnCards[i].rank.value > highestCardPlayed.rank.value) {
-                    // if this card is of same suit as the played and is ranked higher this is the new highest card
-                    highestCardPlayed = turnCards[i];
-                }
-            } else if (turnCards[i].suit.code == 'S') {
-                if (highestCardPlayed.suit.code != 'S') {
-                    highestCardPlayed = turnCards[i];
-                } else if (highestCardPlayed.rank.value < turnCards[i].rank.value) {
-                    highestCardPlayed = turnCards[i];
-                }
-            }
-        }
-
-        console.log("highest played");
-        console.log(highestCardPlayed);
+        let highestCardPlayed = Player.getHighestCard(turnCards);
 
         // if we dont have any original cards
         if (this.cardNumbers[playedSuit.code] <= 0) {
@@ -255,7 +227,6 @@ export class Player {
                     };
                 }
             }
-
         }
     }
 }

@@ -2,16 +2,17 @@ import {
     createServer
 } from "http";
 import {
-    Player
-} from "./player.js";
+    Board
+} from "./board.js";
 import {
-    bestMoveChooser
+    monteCarlo
 } from './search.js';
 
+
 /**
- * @type Object.<string, Player>
+ * @type Board
  */
-let players = {};
+let mainBoard = new Board();
 
 const server = createServer((req, res) => {
     if (req.url) res.setHeader("Content-Type", "application/json");
@@ -116,14 +117,14 @@ function bid(payload) {
     #     Input your code here.        #
     ####################################
     */
-    console.log(json.context.players);
-    players[json.playerId] = new Player(json.cards, json.playerId);
-    let allScores = {};
-    for (let playerId in json.context.players) {
-        allScores[playerId] = json.context.players[playerId].totalPoints;
+    if (mainBoard.playersOrder.length == 0) {
+        mainBoard.setPlayersOrder(json.playerIds);
     }
-    const bidValue = players[json.playerId].getBid(allScores);
-    players[json.playerId].calledBid = bidValue;
+    mainBoard.startNewGame();
+    mainBoard.setPlayerCards(json.playerId, json.cards);
+    console.log(json.context.players);
+
+    let bidValue = mainBoard.getBid(json.playerId);
     // return should have a single field value which should be an int reprsenting the bid value
     return {
         value: bidValue,
@@ -185,10 +186,6 @@ function play(payload) {
     If you feel that the data provided is insufficient, let us know in our discord server.
     */
     const json = JSON.parse(payload);
-    console.log(json.timeBudget);
-
-
-    // console.log(JSON.stringify(json, null, 2));
 
     /*
     ####################################
@@ -196,21 +193,17 @@ function play(payload) {
     ####################################
     */
 
-    if (json.history.length > 0) {
-        console.log(json.history[json.history.length - 1][1]);
-        players[json.playerId].addToHistory(json.history[json.history.length - 1][1]);
-    }
 
-    players[json.playerId].wonHands = json.context.players[json.playerId].won;
-    const playCard = bestMoveChooser(players[json.playerId], json.played);
-
-
-    players[json.playerId].playCard(playCard);
     //  return should have a single field value
     //  which should be an int reprsenting the index of the card to play
     //  e.g> {"value": "QS"}
     //  to play the card "QS"
-    console.log(playCard.cardString);
+    if (json.history.length != 0) {
+        mainBoard.addToHistory(json.history[json.history.length - 1]);
+    }
+    mainBoard.setThrownCards(json.played, json.playerId);
+    console.log(mainBoard);
+    let playCard = monteCarlo(mainBoard);
 
     return {
         value: playCard.toString(),
