@@ -33,7 +33,6 @@ export function bestMoveChooser(pl, turnCards) {
     // check if the win is by playing spades on other suits
     if (turnCards.length > 0) {
         let origSuit = new Card(turnCards[0]).suit;
-        console.log(turnCards, turnCards[0]);
         if (origSuit.code != 'S') {
             // check if we can win by playing spades on other suits
             let spades = ourPossibleMoves.filter(c => c.suit.code == 'S');
@@ -44,6 +43,14 @@ export function bestMoveChooser(pl, turnCards) {
         }
     }
 
+    //if this is the first turn, play spades if we have acheived our bid
+    if (turnCards.length == 0 && pl.calledBid <= pl.wonHands) {
+        let spades = ourPossibleMoves.filter(c => c.suit.code == 'S');
+        if (spades.length > 0) {
+            console.log("Playing spades to fuck opponenets");
+            return spades[0];
+        }
+    }
 
     console.log("HERUSITSICS");
     // check if any card not yet played can beat our card
@@ -86,7 +93,6 @@ export function bestMoveChooser(pl, turnCards) {
         if (unplayedHigher.length == 0) {
             console.log("WE CAN WIN");
             sureWinnings.push(thisCard);
-            // return thisCard;
         }
         //add to disturbing cards
         if (unplayedHigher.length > 0 && thisCard.rank.value >= Rank.QUEEN.value) {
@@ -107,24 +113,45 @@ export function bestMoveChooser(pl, turnCards) {
                 let ourPossibleMovesSuitSorted = ourPossibleMovesSuit.sort((a, b) => b.rank.value - a.rank.value);
                 if (ourPossibleMovesSuitSorted.length > 1 && ourPossibleMovesSuitSorted[0].rank.value < toBaitCard.rank.value) {
                     console.log("BAITING OPPONENT");
-                    return ourPossibleMovesSuitSorted[1];
+                    return ourPossibleMovesSuitSorted[ourPossibleMovesSuitSorted.length - 1];
                 }
             }
         }
     }
 
-    // run out of non-spade cards if their count < 3
-    for (let i = 0; i < Object.keys(pl.cardNumbers).length; i++) {
-        let suit = Object.keys(pl.cardNumbers)[i];
-        if (suit != 'S' && pl.cardNumbers[suit] < 3 && pl.cardNumbers[suit] > 0) {
-            // play lowest card of this suit
-            let ourPossibleMovesSuit = ourPossibleMoves.filter(c => c.suit.code == suit);
-            if (ourPossibleMovesSuit.length > 0) {
-                console.log("RUNNING OUT OF NON-SPADES");
-                return ourPossibleMovesSuit.reduce((a, b) => a.rank.value > b.rank.value ? b : a);
+
+    // run out of non-spade cards if their count < 3 and its ourn turn to start 
+    if (turnCards.length == 0 && pl.cardNumbers['S'] > 0) {
+        let lowestSuit = '',
+            leastNumber = 3;
+        for (let i = 0; i < Object.keys(pl.cardNumbers).length; i++) {
+            let suit = Object.keys(pl.cardNumbers)[i];
+            // check if this suit is in sureWinnings
+            let sureWinningsSuit = sureWinnings.filter(c => c.suit.code == suit);
+            if (suit != 'S' && pl.cardNumbers[suit] < leastNumber && pl.cardNumbers[suit] > 0 && sureWinningsSuit.length == 0) {
+                lowestSuit = suit;
+                leastNumber = pl.cardNumbers[suit];
             }
         }
+        // play lowest card of this suit
+        let ourPossibleMovesSuit = ourPossibleMoves.filter(c => c.suit.code == lowestSuit);
+        if (ourPossibleMovesSuit.length > 0) {
+            console.log("RUNNING OUT OF NON-SPADES");
+            return ourPossibleMovesSuit.reduce((a, b) => a.rank.value > b.rank.value ? b : a);
+        }
     }
+
+
+    // //before playing the sure winnings check if the sure winnings suit is played less than 8 times
+    // if (turnCards.length == 0) {
+    //     let sureWinningsNoSpade = sureWinnings.filter(c => c.suit.code != 'S');
+    //     for (let i = 0; i < sureWinningsNoSpade.length; i++) {
+    //         if (pl.historyNumber[sureWinningsNoSpade[i].suit.code] <= 8) {
+    //             console.log("LESS THAN 8");
+    //             return sureWinningsNoSpade[i];
+    //         }
+    //     }
+    // }
 
     // play the sure winnings
     if (sureWinnings.length > 0) {

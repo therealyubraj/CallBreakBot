@@ -9,7 +9,7 @@ import {
 } from './search.js';
 
 /**
- * @type <string, Player>
+ * @type Object.<string, Player>
  */
 let players = {};
 
@@ -117,9 +117,15 @@ function bid(payload) {
     ####################################
     */
 
-    players[json.playerId] = new Player(json.cards);
-    const bidValue = players[json.playerId].getBid();
-
+    players[json.playerId] = new Player(json.cards, json.playerId);
+    let allScores = {
+        'P0': json.context.players.P0.totalPoints,
+        'P1': json.context.players.P1.totalPoints,
+        'P2': json.context.players.P2.totalPoints,
+        'P3': json.context.players.P3.totalPoints
+    };
+    const bidValue = players[json.playerId].getBid(allScores);
+    players[json.playerId].calledBid = bidValue;
     // return should have a single field value which should be an int reprsenting the bid value
     return {
         value: bidValue,
@@ -182,6 +188,8 @@ function play(payload) {
     */
     console.log("Play called.");
     const json = JSON.parse(payload);
+
+
     // console.log(JSON.stringify(json, null, 2));
 
     /*
@@ -189,21 +197,22 @@ function play(payload) {
     #     Input your code here.        #
     ####################################
     */
-    const playCard = bestMoveChooser(players[json.playerId], json.played);
 
     if (json.history.length > 0) {
         console.log(json.history[json.history.length - 1][1]);
         players[json.playerId].addToHistory(json.history[json.history.length - 1][1]);
     }
 
+    players[json.playerId].wonHands = json.context.players[json.playerId].won;
+    const playCard = bestMoveChooser(players[json.playerId], json.played);
+
+
     players[json.playerId].playCard(playCard);
     //  return should have a single field value
     //  which should be an int reprsenting the index of the card to play
     //  e.g> {"value": "QS"}
     //  to play the card "QS"
-    console.log({
-        playCard
-    });
+    console.log(playCard.cardString);
 
     return {
         value: playCard.toString(),

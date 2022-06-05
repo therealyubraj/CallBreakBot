@@ -9,7 +9,7 @@ export class Player {
      * 
      * @param {Card[]} cards   
      */
-    constructor(cards) {
+    constructor(cards, pId) {
         this.cards = cards.map(c => new Card(c));
         this.cardNumbers = {
             'C': 0,
@@ -19,12 +19,22 @@ export class Player {
         };
 
         this.cards.forEach(c => {
+            console.log(c);
             this.cardNumbers[c.suit.code]++;
         });
         /**
          * @type Card[]
          */
         this.history = [];
+        this.historyNumber = {
+            'C': 0,
+            'H': 0,
+            'S': 0,
+            'D': 0
+        };
+        this.calledBid = -1;
+        this.wonHands = 0;
+        this.playerId = pId;
     }
 
     /**
@@ -42,22 +52,31 @@ export class Player {
      */
     addToHistory(cards) {
         cards.forEach(c => this.history.push(new Card(c)));
+        cards.forEach(c => this.historyNumber[c[1]]++);
     }
 
-    getBid() {
+    /**
+     * 
+     * @param {Object.<string, Integer>} allScores 
+     * @returns 
+     */
+    getBid(allScores) {
         let count = 0;
+        let safe = false;
+
+        //if our total score is highest, we bid safer
+        console.log(allScores);
+        if (allScores[this.playerId] == Object.values(allScores).reduce((a, b) => a > b ? a : b)) {
+            safe = true;
+        }
+
 
         let spades = this.cardNumbers['S'];
-        let oneCardRunsOut = false;
-        Object.keys(this.cardNumbers).forEach(c => {
-            if (!oneCardRunsOut && c != 'S' && spades >= 3 && this.cardNumbers[c] < 3) {
-                count++;
-                oneCardRunsOut = true;
-            }
-        });
+        let trumpWinPrediction = 3;
+
 
         if (spades > 5) {
-            count += spades - 4;
+            count += spades - 5;
         }
 
         // count aces use that as bid value
@@ -75,7 +94,7 @@ export class Player {
         // count if we have both of king and queen/jack/ace of same suit
         for (let i = 0; i < this.cards.length; i++) {
             let card = this.cards[i];
-            if (card.rank.value === Rank.KING.value && this.cardNumbers[card.suit.code] < 5) {
+            if (card.rank.value === Rank.KING.value && (this.cardNumbers[card.suit.code] < 5 || card.suit.code == 'S')) {
                 let kingCanWin = false;
                 for (let j = 0; j < this.cards.length; j++) {
                     let otherCard = this.cards[j];
@@ -98,10 +117,20 @@ export class Player {
                 }
 
                 if (kingCanWin) {
+                    if (card.suit.code == 'S') {
+                        trumpWinPrediction++;
+                    }
                     count++;
                 }
             }
         }
+
+        Object.keys(this.cardNumbers).forEach(c => {
+            if (c != 'S' && spades >= trumpWinPrediction && this.cardNumbers[c] < 3) {
+                count++;
+                // trumpWinPrediction++;
+            }
+        });
 
         // cap count at 1 to 5.
         count = Math.min(Math.max(1, count), 8);
@@ -116,7 +145,7 @@ export class Player {
     getAllPlayableCards(turnCards) {
         turnCards = turnCards.map(p => new Card(p));
 
-        if (turnCards.length < 1) {
+        if (turnCards.length == 0) {
             return {
                 'cards': this.cards,
                 'W': true
@@ -211,7 +240,6 @@ export class Player {
             } else {
                 //original cards was not spade and no one played spade yet aka normal rounds
                 let winningCards = allCardsForSuit.filter(c => c.rank.value > highestCardPlayed.rank.value);
-
                 if (winningCards.length > 0) {
                     //can win
                     return {
