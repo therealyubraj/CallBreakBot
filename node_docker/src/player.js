@@ -66,9 +66,10 @@ export class Player {
 
         //if our total score is highest, we bid safer
         console.log(allScores);
-        if (allScores[this.playerId] == Object.values(allScores).reduce((a, b) => a > b ? a : b)) {
-            safe = true;
-        }
+        // if (allScores[this.playerId] == Object.values(allScores).reduce((a, b) => a > b ? a : b)) {
+        //     safe = true;
+        //     console.log("Safe bro!");
+        // }
 
 
         let spades = this.cardNumbers['S'];

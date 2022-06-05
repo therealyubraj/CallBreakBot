@@ -139,19 +139,38 @@ export function bestMoveChooser(pl, turnCards) {
             console.log("RUNNING OUT OF NON-SPADES");
             return ourPossibleMovesSuit.reduce((a, b) => a.rank.value > b.rank.value ? b : a);
         }
+
     }
 
-
-    // //before playing the sure winnings check if the sure winnings suit is played less than 8 times
-    // if (turnCards.length == 0) {
-    //     let sureWinningsNoSpade = sureWinnings.filter(c => c.suit.code != 'S');
-    //     for (let i = 0; i < sureWinningsNoSpade.length; i++) {
-    //         if (pl.historyNumber[sureWinningsNoSpade[i].suit.code] <= 8) {
-    //             console.log("LESS THAN 8");
-    //             return sureWinningsNoSpade[i];
-    //         }
-    //     }
-    // }
+    //play smallest card of a suit that is not in sureWinnings except spades
+    if (turnCards.length == 0) {
+        let suitsInSureWinnings = {
+            'H': false,
+            'D': false,
+            'C': false
+        };
+        for (let i = 0; i < sureWinnings.length; i++) {
+            let thisCard = sureWinnings[i];
+            if (thisCard.suit.code != 'S') {
+                suitsInSureWinnings[thisCard.suit.code] = true;
+            }
+        }
+        
+        let suitsNotInSureWinnings = [];
+        for (let i = 0; i < Object.keys(pl.cardNumbers).length; i++) {
+            let suit = Object.keys(pl.cardNumbers)[i];
+            if (!suitsInSureWinnings[suit]) {
+                suitsNotInSureWinnings.push(suit);
+            }
+        }
+        console.log("DELAYING!!");
+        if (suitsNotInSureWinnings.length > 0) {
+            let smallestCard = ourPossibleMoves.filter(c => suitsNotInSureWinnings.includes(c.suit.code));
+            if (smallestCard.length > 0) {
+                return smallestCard.reduce((a, b) => a.rank.value > b.rank.value ? b : a);
+            }
+        }
+    }
 
     // play the sure winnings
     if (sureWinnings.length > 0) {

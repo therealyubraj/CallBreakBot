@@ -108,7 +108,7 @@ function bid(payload) {
     */
 
     console.log("Bid called");
-    const json = JSON.parse(payload);
+    let json = JSON.parse(payload);
     // console.log(JSON.stringify(json, null, 2));
 
     /*
@@ -116,14 +116,12 @@ function bid(payload) {
     #     Input your code here.        #
     ####################################
     */
-
+    console.log(json.context.players);
     players[json.playerId] = new Player(json.cards, json.playerId);
-    let allScores = {
-        'P0': json.context.players.P0.totalPoints,
-        'P1': json.context.players.P1.totalPoints,
-        'P2': json.context.players.P2.totalPoints,
-        'P3': json.context.players.P3.totalPoints
-    };
+    let allScores = {};
+    for (let playerId in json.context.players) {
+        allScores[playerId] = json.context.players[playerId].totalPoints;
+    }
     const bidValue = players[json.playerId].getBid(allScores);
     players[json.playerId].calledBid = bidValue;
     // return should have a single field value which should be an int reprsenting the bid value
@@ -186,8 +184,8 @@ function play(payload) {
     This is all the data that you will require for the playing phase.
     If you feel that the data provided is insufficient, let us know in our discord server.
     */
-    console.log("Play called.");
     const json = JSON.parse(payload);
+    console.log(json.timeBudget);
 
 
     // console.log(JSON.stringify(json, null, 2));
