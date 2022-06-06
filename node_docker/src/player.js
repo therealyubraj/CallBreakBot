@@ -1,6 +1,7 @@
 import {
     Card,
-    Rank
+    Rank,
+    allCards
 } from "./card.js";
 
 
@@ -8,12 +9,12 @@ export class Player {
     constructor(pId, nextPId) {
         this.cards = [];
         this.cardNumbers = {
-            'C': 0,
-            'H': 0,
-            'S': 0,
-            'D': 0
+            'C': 3,
+            'H': 3,
+            'S': 4,
+            'D': 3
         };
-
+        this.totalPoints = 0;
         this.calledBid = -1;
         this.wonHands = 0;
         this.playerId = pId;
@@ -22,6 +23,13 @@ export class Player {
 
     setCards(cards) {
         this.cards = cards.map(c => new Card(c));
+
+        this.cardNumbers = {
+            'C': 0,
+            'H': 0,
+            'S': 0,
+            'D': 0
+        };
 
         this.cards.forEach(c => {
             this.cardNumbers[c.suit.code]++;
@@ -134,7 +142,6 @@ export class Player {
      * @param {Card[]} turnCards 
      */
     getAllPlayableCards(turnCards) {
-        turnCards = turnCards.map(p => new Card(p));
 
         if (turnCards.length == 0) {
             return {
@@ -228,5 +235,55 @@ export class Player {
                 }
             }
         }
+    }
+
+    /**
+     * 
+     * @param {Card[]} turnCards 
+     * @param {Card[][]} turnHistory 
+     * @param {String[]} rawHistory 
+     * @param {Object.<String, Integer>} historyNumber 
+     * @returns 
+     */
+    getBotPlayableCards(turnCards, turnHistory, unplayedCards, historyNumber) {
+        if (turnCards.length == 0) {
+            // console.log(allUnplayed);
+            return unplayedCards.map(c => new Card(c));
+        }
+        let originalSuit = turnCards[0].suit;
+        let unplayedOriginal = unplayedCards.filter(c => c[1] == originalSuit.code);
+
+        let unplayedCardsParsed = unplayedCards.map(c => new Card(c));
+        let highestCardPlayed = Player.getHighestCard(turnCards);
+
+        let unplayedHigher = unplayedCardsParsed.filter(c => c.rank.value > highestCardPlayed.rank.value);
+        if (unplayedHigher.length > 0) {
+            unplayedOriginal = unplayedHigher.map(c => c.toString());
+        }
+
+        if (originalSuit.code != 'S') {
+            let unplayedTrump = unplayedCards.filter(c => c[1] == 'S');
+            unplayedOriginal = unplayedOriginal.concat(unplayedTrump);
+        }
+
+        if (unplayedOriginal.length == 0) {
+            return unplayedCards.map(c => new Card(c));
+        }
+
+        return unplayedOriginal.map(c => new Card(c));
+    }
+
+    copy() {
+        let newPlayer = new Player(this.playerId, this.nextPlayerId);
+
+        newPlayer.cards = [...this.cards];
+        Object.keys(this.cardNumbers).forEach(c => {
+            newPlayer.cardNumbers[c] = this.cardNumbers[c];
+        });
+        newPlayer.calledBid = this.calledBid;
+        newPlayer.wonHands = this.wonHands;
+        newPlayer.totalPoints = this.totalPoints;
+
+        return newPlayer;
     }
 }

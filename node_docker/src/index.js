@@ -120,9 +120,11 @@ function bid(payload) {
     if (mainBoard.playersOrder.length == 0) {
         mainBoard.setPlayersOrder(json.playerIds);
     }
-    mainBoard.startNewGame();
+    if (json.context.round != mainBoard.gameNumber) {
+        mainBoard.startNewGame();
+    }
+    
     mainBoard.setPlayerCards(json.playerId, json.cards);
-    console.log(json.context.players);
 
     let bidValue = mainBoard.getBid(json.playerId);
     // return should have a single field value which should be an int reprsenting the bid value
@@ -199,12 +201,15 @@ function play(payload) {
     //  e.g> {"value": "QS"}
     //  to play the card "QS"
     if (json.history.length != 0) {
-        mainBoard.addToHistory(json.history[json.history.length - 1]);
+        mainBoard.addToHistory(json.history[json.history.length - 1][1]);
     }
+    mainBoard.startNewHand();
+    mainBoard.updatePlayerInfo(json.context.players);
     mainBoard.setThrownCards(json.played, json.playerId);
-    console.log(mainBoard);
-    let playCard = monteCarlo(mainBoard);
-
+    // console.log(mainBoard.unplayedCards);
+    mainBoard.readyChildren();
+    let playCard = monteCarlo(mainBoard, 100, json.playerId);
+    mainBoard.playCard(playCard, json.playerId);
     return {
         value: playCard.toString(),
     };

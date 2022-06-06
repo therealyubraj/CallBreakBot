@@ -1,4 +1,5 @@
 import {
+    allCards,
     Card
 } from './card.js';
 import {
@@ -19,20 +20,20 @@ export class Board {
          * @type Object.<string, Player>
          */
         this.players = {};
-        this.score = 0;
-        this.visits = 0;
-        this.expanded = false;
-        this.parent = null;
-        this.gameNumber = -1;
-
-        this.history = [];
+        this.turnHistory = [];
+        this.unplayedCards = [...allCards];
         this.historyNumber = {
             'C': 0,
             'H': 0,
             'S': 0,
             'D': 0
         };
+        this.gameNumber = -1;
 
+        this.score = 0;
+        this.visits = 0;
+        this.expanded = false;
+        this.parent = null;
         /**
          * @type Board[]
          */
@@ -47,9 +48,13 @@ export class Board {
     }
 
     setPlayerCards(playerId, cards) {
-        console.log(this.players);
         this.players[playerId].setCards(cards);
+        //remove cards from unplayed cards
+        cards.forEach(c => {
+            this.unplayedCards.splice(this.unplayedCards.indexOf(c), 1);
+        });
     }
+
 
     setThrownCards(cards, pId) {
         this.thrownCards = cards.map(c => new Card(c));
@@ -59,17 +64,88 @@ export class Board {
         for (let i = 0; i < 4 - this.thrownCards.length; i++) {
             this.handStarter = this.players[this.handStarter].nextPlayerId;
         }
-
     }
 
     readyChildren() {
+        this.expanded = true;
         this.children = [];
+        if (this.thrownCards.length == 4) {
+            let handWinningCard = Player.getHighestCard(this.thrownCards);
+            let handWinnerIndex = 0;
+            for (let i = 0; i < this.thrownCards.length; i++) {
+                if (this.thrownCards[i].equals(handWinningCard)) {
+                    handWinnerIndex = i;
+                    break;
+                }
+            }
+
+            let handWinner = this.handStarter;
+            for (let i = 0; i < handWinnerIndex; i++) {
+                handWinner = this.players[handWinner].nextPlayerId;
+            }
+            let newBoard = this.copy();
+            newBoard.addToHistory(newBoard.thrownCards.map(c => c.cardString));
+            newBoard.startNewHand();
+            newBoard.handStarter = handWinner;
+            newBoard.players[handWinner].wonHands++;
+
+            let possibleMoves;
+            // get possible moves using the hand winner
+            if (newBoard.players[handWinner].cards.length == 0) {
+                possibleMoves = newBoard.players[handWinner].getBotPlayableCards([], newBoard.turnHistory, newBoard.unplayedCards, newBoard.historyNumber);
+            } else {
+                possibleMoves = newBoard.players[handWinner].getAllPlayableCards([]).cards;
+            }
+
+            for (let card of possibleMoves) {
+                let copiedBoard = newBoard.copy();
+                copiedBoard.thrownCards = [card];
+                copiedBoard.players[handWinner].playCard(card);
+                copiedBoard.unplayedCards.splice(copiedBoard.unplayedCards.indexOf(card.cardString), 1);
+                copiedBoard.parent = this;
+                this.children.push(copiedBoard);
+            }
+            return;
+        }
+
+        // get all possible boards from this board
+        let playerId = this.handStarter;
+        for (let i = 0; i < this.thrownCards.length; i++) {
+            playerId = this.players[playerId].nextPlayerId;
+        }
+
+        let possibleMoves;
+        if (this.players[playerId].cards.length > 0) {
+            possibleMoves = this.players[playerId].getAllPlayableCards(this.thrownCards).cards;
+        } else {
+            possibleMoves = this.players[playerId].getBotPlayableCards(this.thrownCards, this.turnHistory, this.unplayedCards, this.historyNumber);
+        }
+
+        // create a new board for each possible move
+        possibleMoves.forEach(c => {
+            let newBoard = this.copy();
+            newBoard.thrownCards.push(c);
+            newBoard.parent = this;
+            newBoard.players[playerId].playCard(c);
+            newBoard.unplayedCards.splice(newBoard.unplayedCards.indexOf(c.cardString), 1);
+            this.children.push(newBoard);
+        });
     }
 
-    addToHistory(lasthistory) {
-        this.history.push(lasthistory);
-        this.history[this.history.length - 1][1].map(a => new Card(a));
-        this.history[this.history.length - 1][1].forEach(c => {
+    addToHistory(lastHistory) {
+        //TODO: analyze the last history to better update the card numbers of bots
+
+        lastHistory.forEach(c => {
+            // if c is found in unplayed cards, remove it
+            let cInd = this.unplayedCards.indexOf(c);
+            if (cInd != -1) {
+                this.unplayedCards.splice(cInd, 1);
+            }
+        });
+
+        this.turnHistory.push(lastHistory);
+        this.turnHistory[this.turnHistory.length - 1] = this.turnHistory[this.turnHistory.length - 1].map(a => new Card(a));
+        this.turnHistory[this.turnHistory.length - 1].forEach(c => {
             this.historyNumber[c.suit.code]++;
         });
     }
@@ -80,19 +156,33 @@ export class Board {
 
     startNewGame() {
         this.gameNumber++;
-        this.history = [];
+        this.turnHistory = [];
+        this.unplayedCards = [...allCards];
+
         this.historyNumber = {
             'C': 0,
             'H': 0,
             'S': 0,
             'D': 0
         };
+        this.startNewHand();
+    }
+
+    startNewHand() {
         this.thrownCards = [];
         this.score = 0;
         this.visits = 0;
         this.expanded = false;
         this.parent = null;
         this.children = [];
+    }
+
+    updatePlayerInfo(playerInfo) {
+        Object.keys(playerInfo).forEach(pId => {
+            this.players[pId].wonHands = playerInfo[pId].won;
+            this.players[pId].calledBid = playerInfo[pId].bid;
+            this.players[pId].totalPoints = playerInfo[pId].totalPoints;
+        });
     }
 
     getUCB(total) {
@@ -102,7 +192,43 @@ export class Board {
         return (this.score / this.visits) + 2 * Math.sqrt(Math.log(total) / this.visits);
     }
 
-    rollOut() {
+    rollOut(ourIndex) {
+        let newBoard = this.copy();
+        while (newBoard.unplayedCards.length > 0) {
+            // TODO: here we can optimize time by choosing random child without using readyChildren
+            newBoard.readyChildren();
+            let randomChildren = newBoard.children[Math.floor(Math.random() * newBoard.children.length)];
+            if (!randomChildren) {
+                console.log("no child");
+            }
+            newBoard = randomChildren;
+        }
+        return newBoard.players[ourIndex].wonHands;
+    }
 
+    playCard(card, pId) {
+        this.players[pId].playCard(card);
+    }
+
+    copy() {
+        let newBoard = new Board();
+        newBoard.children = [];
+        newBoard.thrownCards = [...this.thrownCards];
+        newBoard.handStarter = this.handStarter;
+        newBoard.playersOrder = [...this.playersOrder];
+        newBoard.players = {};
+        Object.keys(this.players).forEach(pId => {
+            newBoard.players[pId] = this.players[pId].copy();
+        });
+        newBoard.turnHistory = [...this.turnHistory];
+        newBoard.unplayedCards = [...this.unplayedCards];
+        newBoard.historyNumber = {
+            'C': this.historyNumber['C'],
+            'H': this.historyNumber['H'],
+            'S': this.historyNumber['S'],
+            'D': this.historyNumber['D']
+        };
+        newBoard.gameNumber = this.gameNumber;
+        return newBoard;
     }
 }

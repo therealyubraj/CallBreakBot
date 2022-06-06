@@ -18,6 +18,8 @@ export const Suit = {
     },
 };
 
+
+
 export const Rank = {
     TWO: {
         value: 2,
@@ -79,6 +81,7 @@ export class Card {
      * @param {String} cardString 
      */
     constructor(cardString) {
+        if (typeof cardString !== "string") throw new Error("cardString must be a string");
         this.cardString = cardString;
         this.rank = Card.getRank(cardString);
         this.suit = Card.getSuit(cardString);
@@ -130,3 +133,10 @@ export class Card {
         return this.suit == other.suit;
     }
 }
+
+export const allCards = [
+    '2H', '3H', '4H', '5H', '6H', '7H', '8H', '9H', 'TH', 'JH', 'QH', 'KH', '1H',
+    '2C', '3C', '4C', '5C', '6C', '7C', '8C', '9C', 'TC', 'JC', 'QC', 'KC', '1C',
+    '2D', '3D', '4D', '5D', '6D', '7D', '8D', '9D', 'TD', 'JD', 'QD', 'KD', '1D',
+    '2S', '3S', '4S', '5S', '6S', '7S', '8S', '9S', 'TS', 'JS', 'QS', 'KS', '1S',
+];

@@ -12,11 +12,63 @@ import {
 
 /**
  * 
- * @param {Player} pl 
- * @param {Card[]} turnCards 
+ * @param {Board} mainBoard 
+ * @param {Integer} iterations 
  */
-export function monteCarlo(mainBoard) {
-    
+export function monteCarlo(mainBoard, iterations, pID) {
+    for (let i = 0; i < iterations; i++) {
+        let current = mainBoard;
+
+        while (current.expanded) {
+            // choose child with highest UCB
+            if (current.children.length == 0) {
+                break;
+            }
+            let bestChild = current.children[0];
+            let bestUCB = current.children[0].getUCB(i);
+            for (let i = 1; i < current.children.length; i++) {
+                let childUCB = current.children[i].getUCB(i);
+                if (childUCB > bestUCB) {
+                    bestChild = current.children[i];
+                    bestUCB = childUCB;
+                }
+                if (childUCB == Infinity) {
+                    break;
+                }
+            }
+            current = bestChild;
+        }
+
+        if (current.visits != 0) {
+            current.readyChildren();
+            if (current.children.length != 0) {
+                current = current.children[0];
+            }
+        }
+
+        //rollout
+        if (!current) {
+            console.log(current);
+        }
+        let score = current.rollOut(pID);
+
+        //backpropagate
+        while (current != null) {
+            current.visits++;
+            current.score += score;
+            current = current.parent;
+        }
+    }
+
+    let bestChild = mainBoard.children[0];
+    for (let i = 1; i < mainBoard.children.length; i++) {
+        let child = mainBoard.children[i];
+        if (child.score / child.visits > bestChild.score / bestChild.visits) {
+            bestChild = child;
+        }
+    }
+    console.log(bestChild.score);
+    return bestChild.thrownCards[mainBoard.thrownCards.length % 4];
 }
 
 // /**
