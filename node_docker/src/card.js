@@ -81,7 +81,6 @@ export class Card {
      * @param {String} cardString 
      */
     constructor(cardString) {
-        if (typeof cardString !== "string") throw new Error("cardString must be a string");
         this.cardString = cardString;
         this.rank = Card.getRank(cardString);
         this.suit = Card.getSuit(cardString);

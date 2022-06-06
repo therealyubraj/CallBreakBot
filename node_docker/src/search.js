@@ -1,12 +1,4 @@
 import {
-    Player
-} from "./player.js";
-import {
-    Card,
-    Rank
-} from "./card.js";
-
-import {
     Board
 } from "./board.js";
 
@@ -67,7 +59,13 @@ export function monteCarlo(mainBoard, iterations, pID) {
             bestChild = child;
         }
     }
-    console.log(bestChild.score);
+
+    //set the parent of children of mainBoard to null
+    for (let i = 0; i < mainBoard.children.length; i++) {
+        mainBoard.children[i].parent = null;
+    }
+    
+    // console.log(bestChild.score);
     return bestChild.thrownCards[mainBoard.thrownCards.length % 4];
 }
 

@@ -7,12 +7,16 @@ import {
 import {
     monteCarlo
 } from './search.js';
+// import {
+//     performance
+// } from 'perf_hooks';
 
 
 /**
  * @type Board
  */
 let mainBoard = new Board();
+let time = {};
 
 const server = createServer((req, res) => {
     if (req.url) res.setHeader("Content-Type", "application/json");
@@ -38,6 +42,7 @@ const server = createServer((req, res) => {
             error: "Unknown request"
         };
         if (req.url.endsWith("hi")) {
+            // register endpoint here
             result = hi(payload);
         } else if (req.url.endsWith("bid")) {
             result = bid(payload);
@@ -108,6 +113,7 @@ function bid(payload) {
     If you feel that the data provided is insufficient, let us know in our discord server.
     */
 
+    // time.bidStartTime = performance.now();
     console.log("Bid called");
     let json = JSON.parse(payload);
     // console.log(JSON.stringify(json, null, 2));
@@ -117,19 +123,30 @@ function bid(payload) {
     #     Input your code here.        #
     ####################################
     */
-    if (mainBoard.playersOrder.length == 0) {
-        mainBoard.setPlayersOrder(json.playerIds);
+
+    if (json.context.round == 1) {
+        if (mainBoard.gameNumber != 1) {
+            mainBoard = new Board();
+            mainBoard.setPlayersOrder(json.playerIds);
+            mainBoard.gameNumber = 1;
+            console.log("New game started");
+        }
     }
+
+    let actualPlayerId = json.playerId;
+
     if (json.context.round != mainBoard.gameNumber) {
+        console.log("New Round Started");
         mainBoard.startNewGame();
     }
-    
-    mainBoard.setPlayerCards(json.playerId, json.cards);
 
-    let bidValue = mainBoard.getBid(json.playerId);
+    mainBoard.setPlayerCards(actualPlayerId, json.cards);
+
+    let bidValue = mainBoard.getBid(actualPlayerId);
     // return should have a single field value which should be an int reprsenting the bid value
+    // time.bidEndTime = performance.now();
     return {
-        value: bidValue,
+        value: bidValue
     };
 }
 
@@ -189,6 +206,8 @@ function play(payload) {
     */
     const json = JSON.parse(payload);
 
+    let actualPlayerId = json.playerId;
+
     /*
     ####################################
     #     Input your code here.        #
@@ -200,16 +219,17 @@ function play(payload) {
     //  which should be an int reprsenting the index of the card to play
     //  e.g> {"value": "QS"}
     //  to play the card "QS"
+    // console.log(time);
     if (json.history.length != 0) {
         mainBoard.addToHistory(json.history[json.history.length - 1][1]);
     }
     mainBoard.startNewHand();
     mainBoard.updatePlayerInfo(json.context.players);
-    mainBoard.setThrownCards(json.played, json.playerId);
+    mainBoard.setThrownCards(json.played, actualPlayerId);
     // console.log(mainBoard.unplayedCards);
     mainBoard.readyChildren();
-    let playCard = monteCarlo(mainBoard, 100, json.playerId);
-    mainBoard.playCard(playCard, json.playerId);
+    let playCard = monteCarlo(mainBoard, 100, actualPlayerId);
+    mainBoard.playCard(playCard, actualPlayerId);
     return {
         value: playCard.toString(),
     };

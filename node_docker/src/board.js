@@ -28,7 +28,7 @@ export class Board {
             'S': 0,
             'D': 0
         };
-        this.gameNumber = -1;
+        this.gameNumber = 0;
 
         this.score = 0;
         this.visits = 0;
@@ -42,9 +42,11 @@ export class Board {
 
     setPlayersOrder(playersOrder) {
         this.playersOrder = playersOrder;
+        this.players = {};
         this.playersOrder.forEach((p, i) => {
             this.players[p] = new Player(p, this.playersOrder[(i + 1) % this.playersOrder.length]);
         });
+        this.startNewGame();
     }
 
     setPlayerCards(playerId, cards) {
@@ -143,8 +145,7 @@ export class Board {
             }
         });
 
-        this.turnHistory.push(lastHistory);
-        this.turnHistory[this.turnHistory.length - 1] = this.turnHistory[this.turnHistory.length - 1].map(a => new Card(a));
+        this.turnHistory.push(lastHistory.map(a => new Card(a)));
         this.turnHistory[this.turnHistory.length - 1].forEach(c => {
             this.historyNumber[c.suit.code]++;
         });
@@ -156,6 +157,7 @@ export class Board {
 
     startNewGame() {
         this.gameNumber++;
+        this.handStarter = "";
         this.turnHistory = [];
         this.unplayedCards = [...allCards];
 
@@ -178,7 +180,7 @@ export class Board {
     }
 
     updatePlayerInfo(playerInfo) {
-        Object.keys(playerInfo).forEach(pId => {
+        Object.keys(playerInfo).forEach((pId, i) => {
             this.players[pId].wonHands = playerInfo[pId].won;
             this.players[pId].calledBid = playerInfo[pId].bid;
             this.players[pId].totalPoints = playerInfo[pId].totalPoints;
@@ -192,7 +194,7 @@ export class Board {
         return (this.score / this.visits) + 2 * Math.sqrt(Math.log(total) / this.visits);
     }
 
-    rollOut(ourIndex) {
+    rollOut(pId) {
         let newBoard = this.copy();
         while (newBoard.unplayedCards.length > 0) {
             // TODO: here we can optimize time by choosing random child without using readyChildren
@@ -203,7 +205,10 @@ export class Board {
             }
             newBoard = randomChildren;
         }
-        return newBoard.players[ourIndex].wonHands;
+        if (newBoard.players[pId].calledBid > newBoard.players[pId].wonHands) {
+            return newBoard.players[pId].wonHands - newBoard.players[pId].calledBid;
+        }
+        return newBoard.players[pId].wonHands;
     }
 
     playCard(card, pId) {

@@ -1,0 +1,72 @@
+{
+    "players": ["Uvryptic", "Uvryptic", "Bot 0", "Bot 1"],
+    "rounds": [{
+        "dealer": 3,
+        "cards": [
+            ["5S", "4S", "3S", "9H", "8H", "2H", "JC", "8C", "6C", "1D", "QD", "4D", "2D"],
+            ["1S", "KS", "TS", "9S", "KH", "TH", "5H", "4H", "3H", "QC", "7C", "KD", "TD"],
+            ["QS", "JS", "8S", "7S", "QH", "KC", "TC", "9C", "4C", "2C", "JD", "6D", "5D"],
+            ["6S", "2S", "1H", "JH", "7H", "6H", "1C", "5C", "3C", "9D", "8D", "7D", "3D"]
+        ],
+        "bids": [1, 5, 3, 2],
+        "errors": {
+            "11": [{
+                "type": "TIMEOUT",
+                "turn": 1,
+                "correction": null
+            }]
+        },
+        "actions": [{
+            "started": 0,
+            "cards": ["4S", "1S", "8S", "2S"],
+            "ended": 1
+        }, {
+            "started": 1,
+            "cards": ["TS", "QS", "6S", "5S"],
+            "ended": 2
+        }, {
+            "started": 2,
+            "cards": ["6D", "9D", "1D", "KD"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["QD", "TD", "5D", "3D"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["9H", "TH", "QH", "1H"],
+            "ended": 3
+        }, {
+            "started": 3,
+            "cards": ["8D", "2D", "KS", "JD"],
+            "ended": 1
+        }, {
+            "started": 1,
+            "cards": ["9S", "JS", "3C", "3S"],
+            "ended": 2
+        }, {
+            "started": 2,
+            "cards": ["4C", "5C", "JC", "QC"],
+            "ended": 1
+        }, {
+            "started": 1,
+            "cards": ["KH", "7S", "7H", "8H"],
+            "ended": 2
+        }, {
+            "started": 2,
+            "cards": ["KC", "1C", "8C", "7C"],
+            "ended": 3
+        }, {
+            "started": 3,
+            "cards": ["7D", "4D", "5H", "2C"],
+            "ended": 3
+        }, {
+            "started": 3,
+            "cards": ["6H", null, null, null],
+            "ended": null
+        }],
+        "scores": [1.1, -5, 3, 2.1],
+        "responseTimes": [1500, 136.5, 0, 0]
+    }],
+    "ranks": [-3, 1, -3, 1, -3, 1, -3, 1]
+}

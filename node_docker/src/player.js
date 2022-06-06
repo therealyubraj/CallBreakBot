@@ -1,7 +1,6 @@
 import {
     Card,
-    Rank,
-    allCards
+    Rank
 } from "./card.js";
 
 
@@ -253,7 +252,7 @@ export class Player {
         let originalSuit = turnCards[0].suit;
         let unplayedOriginal = unplayedCards.filter(c => c[1] == originalSuit.code);
 
-        let unplayedCardsParsed = unplayedCards.map(c => new Card(c));
+        let unplayedCardsParsed = unplayedOriginal.map(c => new Card(c));
         let highestCardPlayed = Player.getHighestCard(turnCards);
 
         let unplayedHigher = unplayedCardsParsed.filter(c => c.rank.value > highestCardPlayed.rank.value);
