@@ -7,15 +7,13 @@ import {
 import {
     monteCarlo
 } from './search.js';
-// import {
-//     performance
-// } from 'perf_hooks';
+
 
 
 /**
- * @type Board
+ * @type Object.<string, Board>
  */
-let mainBoard = new Board();
+let allBoards = {};
 let time = {};
 
 const server = createServer((req, res) => {
@@ -42,7 +40,6 @@ const server = createServer((req, res) => {
             error: "Unknown request"
         };
         if (req.url.endsWith("hi")) {
-            // register endpoint here
             result = hi(payload);
         } else if (req.url.endsWith("bid")) {
             result = bid(payload);
@@ -124,25 +121,23 @@ function bid(payload) {
     ####################################
     */
 
-    if (json.context.round == 1) {
-        if (mainBoard.gameNumber != 1) {
-            mainBoard = new Board();
-            mainBoard.setPlayersOrder(json.playerIds);
-            mainBoard.gameNumber = 1;
-            console.log("New game started");
+    // if anything other than playerIds is in allBoards, delete it
+    Object.keys(allBoards).forEach(key => {
+        if (!json.playerIds.includes(key)) {
+            delete allBoards[key];
         }
-    }
+    });
 
-    let actualPlayerId = json.playerId;
 
-    if (json.context.round != mainBoard.gameNumber) {
-        console.log("New Round Started");
-        mainBoard.startNewGame();
-    }
+    allBoards[json.playerId] = new Board();
+    let mainBoard = allBoards[json.playerId];
+    mainBoard.setPlayersOrder(json.playerIds);
 
-    mainBoard.setPlayerCards(actualPlayerId, json.cards);
+    Object.keys(allBoards).forEach(playerId => {
+        allBoards[playerId].setPlayerCards(json.playerId, json.cards);
+    });
 
-    let bidValue = mainBoard.getBid(actualPlayerId);
+    let bidValue = mainBoard.getBid(json.playerId);
     // return should have a single field value which should be an int reprsenting the bid value
     // time.bidEndTime = performance.now();
     return {
@@ -206,7 +201,6 @@ function play(payload) {
     */
     const json = JSON.parse(payload);
 
-    let actualPlayerId = json.playerId;
 
     /*
     ####################################
@@ -220,16 +214,29 @@ function play(payload) {
     //  e.g> {"value": "QS"}
     //  to play the card "QS"
     // console.log(time);
+
+    // if (json.timeBudget < 0) {
+    //     console.log("Time budget is negative");
+    //     return {
+    //         value: -1
+    //     };
+    // }
+    let mainBoard = allBoards[json.playerId];
+
     if (json.history.length != 0) {
         mainBoard.addToHistory(json.history[json.history.length - 1][1]);
     }
     mainBoard.startNewHand();
     mainBoard.updatePlayerInfo(json.context.players);
-    mainBoard.setThrownCards(json.played, actualPlayerId);
+    mainBoard.setThrownCards(json.played, json.playerId);
     // console.log(mainBoard.unplayedCards);
     mainBoard.readyChildren();
-    let playCard = monteCarlo(mainBoard, 100, actualPlayerId);
-    mainBoard.playCard(playCard, actualPlayerId);
+    let playCard = monteCarlo(mainBoard, 100, json.playerId);
+    // let playCard = mainBoard.children[0].thrownCards[json.played.length];
+
+    Object.keys(allBoards).forEach(playerId => {
+        allBoards[playerId].playCard(playCard, json.playerId);
+    });
     return {
         value: playCard.toString(),
     };

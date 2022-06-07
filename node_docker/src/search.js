@@ -2,13 +2,20 @@ import {
     Board
 } from "./board.js";
 
+import {
+    performance
+} from 'perf_hooks';
+
 /**
  * 
  * @param {Board} mainBoard 
  * @param {Integer} iterations 
  */
-export function monteCarlo(mainBoard, iterations, pID) {
-    for (let i = 0; i < iterations; i++) {
+export function monteCarlo(mainBoard, totalTime, pId) {
+    let startTime = performance.now();
+    let endTime = startTime + totalTime;
+    let i = 1;
+    while (performance.now() < endTime) {
         let current = mainBoard;
 
         while (current.expanded) {
@@ -18,10 +25,10 @@ export function monteCarlo(mainBoard, iterations, pID) {
             }
             let bestChild = current.children[0];
             let bestUCB = current.children[0].getUCB(i);
-            for (let i = 1; i < current.children.length; i++) {
-                let childUCB = current.children[i].getUCB(i);
+            for (let j = 1; j < current.children.length; j++) {
+                let childUCB = current.children[j].getUCB(i);
                 if (childUCB > bestUCB) {
-                    bestChild = current.children[i];
+                    bestChild = current.children[j];
                     bestUCB = childUCB;
                 }
                 if (childUCB == Infinity) {
@@ -40,9 +47,10 @@ export function monteCarlo(mainBoard, iterations, pID) {
 
         //rollout
         if (!current) {
-            console.log(current);
+            console.log("current is null");
         }
-        let score = current.rollOut(pID);
+
+        let score = current.rollOut(pId);
 
         //backpropagate
         while (current != null) {
@@ -50,6 +58,8 @@ export function monteCarlo(mainBoard, iterations, pID) {
             current.score += score;
             current = current.parent;
         }
+
+        i++;
     }
 
     let bestChild = mainBoard.children[0];
@@ -64,7 +74,7 @@ export function monteCarlo(mainBoard, iterations, pID) {
     for (let i = 0; i < mainBoard.children.length; i++) {
         mainBoard.children[i].parent = null;
     }
-    
+
     // console.log(bestChild.score);
     return bestChild.thrownCards[mainBoard.thrownCards.length % 4];
 }

@@ -40,7 +40,14 @@ export class Player {
      * @param {Card} card 
      */
     playCard(card) {
-        this.cards = this.cards.filter(c => !c.equals(card));
+        if (this.cards.length != 0) {
+            let beforeLen = this.cards.length;
+            this.cards = this.cards.filter(c => !c.equals(card));
+            let afterLen = this.cards.length;
+            if (beforeLen == afterLen) {
+                throw new Error("Card not found");
+            }
+        }
         this.cardNumbers[card.suit.code]--;
     }
 
@@ -141,6 +148,12 @@ export class Player {
      * @param {Card[]} turnCards 
      */
     getAllPlayableCards(turnCards) {
+        if (this.cards.length == 0) {
+            return {
+                'cards': [],
+                'W': false
+            };
+        }
 
         if (turnCards.length == 0) {
             return {
@@ -236,15 +249,11 @@ export class Player {
         }
     }
 
-    /**
-     * 
-     * @param {Card[]} turnCards 
-     * @param {Card[][]} turnHistory 
-     * @param {String[]} rawHistory 
-     * @param {Object.<String, Integer>} historyNumber 
-     * @returns 
-     */
     getBotPlayableCards(turnCards, turnHistory, unplayedCards, historyNumber) {
+        if (unplayedCards.length == 0) {
+            return [];
+        }
+
         if (turnCards.length == 0) {
             // console.log(allUnplayed);
             return unplayedCards.map(c => new Card(c));
@@ -262,6 +271,15 @@ export class Player {
 
         if (originalSuit.code != 'S') {
             let unplayedTrump = unplayedCards.filter(c => c[1] == 'S');
+            let unplayedTrumpHigher = [];
+            // find trump card which can win the highest card if highest card is a spade
+            if (highestCardPlayed.suit.code == 'S') {
+                unplayedTrumpHigher = unplayedTrump.map(c => new Card(c)).filter(c => c.rank.value > highestCardPlayed.rank.value);
+            }
+
+            if (unplayedTrumpHigher.length > 0) {
+                unplayedTrump = unplayedTrumpHigher.map(c => c.toString());
+            }
             unplayedOriginal = unplayedOriginal.concat(unplayedTrump);
         }
 

@@ -13,40 +13,17 @@ export class Board {
      * @param {Card[]} possibleMoves 
      */
     constructor() {
-        this.thrownCards = [];
-        this.handStarter = "";
-        this.playersOrder = [];
-        /**
-         * @type Object.<string, Player>
-         */
-        this.players = {};
-        this.turnHistory = [];
-        this.unplayedCards = [...allCards];
-        this.historyNumber = {
-            'C': 0,
-            'H': 0,
-            'S': 0,
-            'D': 0
-        };
-        this.gameNumber = 0;
-
-        this.score = 0;
-        this.visits = 0;
-        this.expanded = false;
-        this.parent = null;
-        /**
-         * @type Board[]
-         */
-        this.children = [];
+        this.startNewGame();
     }
 
     setPlayersOrder(playersOrder) {
+        this.startNewGame();
         this.playersOrder = playersOrder;
+        this.gameNumber = 1;
         this.players = {};
         this.playersOrder.forEach((p, i) => {
             this.players[p] = new Player(p, this.playersOrder[(i + 1) % this.playersOrder.length]);
         });
-        this.startNewGame();
     }
 
     setPlayerCards(playerId, cards) {
@@ -59,6 +36,10 @@ export class Board {
 
 
     setThrownCards(cards, pId) {
+        //remove thrown cards from unplayed cards
+        cards.forEach(c => {
+            this.unplayedCards.splice(this.unplayedCards.indexOf(c), 1);
+        });
         this.thrownCards = cards.map(c => new Card(c));
         this.handStarter = pId;
 
@@ -156,6 +137,34 @@ export class Board {
     }
 
     startNewGame() {
+        this.thrownCards = [];
+        this.handStarter = "";
+        this.playersOrder = [];
+        /**
+         * @type Object.<string, Player>
+         */
+        this.players = {};
+        this.turnHistory = [];
+        this.unplayedCards = [...allCards];
+        this.historyNumber = {
+            'C': 0,
+            'H': 0,
+            'S': 0,
+            'D': 0
+        };
+        this.gameNumber = 0;
+
+        this.score = 0;
+        this.visits = 0;
+        this.expanded = false;
+        this.parent = null;
+        /**
+         * @type Board[]
+         */
+        this.children = [];
+    }
+
+    startNewRound() {
         this.gameNumber++;
         this.handStarter = "";
         this.turnHistory = [];
@@ -201,7 +210,8 @@ export class Board {
             newBoard.readyChildren();
             let randomChildren = newBoard.children[Math.floor(Math.random() * newBoard.children.length)];
             if (!randomChildren) {
-                console.log("no child");
+                throw new Error("No children");
+                //break;
             }
             newBoard = randomChildren;
         }
