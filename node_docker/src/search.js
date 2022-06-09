@@ -6,6 +6,10 @@ import {
     performance
 } from 'perf_hooks';
 
+import {
+    Card,
+    Rank
+} from "./card.js";
 /**
  * 
  * @param {Board} mainBoard 
@@ -63,20 +67,17 @@ export function monteCarlo(mainBoard, totalTime, pId) {
     }
 
     let bestChild = mainBoard.children[0];
-    for (let i = 1; i < mainBoard.children.length; i++) {
-        let child = mainBoard.children[i];
+    for (let j = 1; j < mainBoard.children.length; j++) {
+        let child = mainBoard.children[j];
         if (child.score / child.visits > bestChild.score / bestChild.visits) {
             bestChild = child;
         }
     }
 
-    //set the parent of children of mainBoard to null
-    for (let i = 0; i < mainBoard.children.length; i++) {
-        mainBoard.children[i].parent = null;
-    }
+    console.log(mainBoard.children.map(c => c.score + " " + c.visits).join("\n"));
 
-    // console.log(bestChild.score);
-    return bestChild.thrownCards[mainBoard.thrownCards.length % 4];
+    console.log('-------------- ' + i + ' iterations :(');
+    return bestChild.thrownCards.pop();
 }
 
 // /**
@@ -84,8 +85,9 @@ export function monteCarlo(mainBoard, totalTime, pId) {
 //  * @param {Player} pl 
 //  * @param {Card[]} turnCards 
 //  */
-// export function bestMoveChooser(pl, turnCards) {
-//     let playableMovesObject = pl.getAllPlayableCards(turnCards);
+// export function bestMoveChooser(pl, turnCards, unplayedCards) {
+//     let turnCardsParsed = turnCards.map(c => new Card(c));
+//     let playableMovesObject = pl.getAllPlayableCards(turnCardsParsed);
 
 //     let ourPossibleMoves = playableMovesObject['cards'];
 //     let canWin = playableMovesObject['W'];
@@ -134,35 +136,36 @@ export function monteCarlo(mainBoard, totalTime, pId) {
 
 //     for (let i = 0; i < ourPossibleMoves.length; i++) {
 //         let thisCard = ourPossibleMoves[i];
-//         let unplayedCards = [];
+//         let unplayedCardsParsed = unplayedCards.map(c => new Card(c));
+//         // let unplayedCards = [];
 
-//         for (let j = 0; j < allValues.length; j++) {
-//             let newCard = new Card(allValues[j] + thisCard.suit.code);
+//         // for (let j = 0; j < allValues.length; j++) {
+//         //     let newCard = new Card(allValues[j] + thisCard.suit.code);
 
-//             //check if this card is in history or in our deck
-//             let found = false;
+//         //     //check if this card is in history or in our deck
+//         //     let found = false;
 
-//             pl.history.forEach(c => {
-//                 if (c.equals(newCard)) {
-//                     // console.log("FOUND IN HISTORY");
-//                     found = true;
-//                 }
-//             });
+//         //     pl.history.forEach(c => {
+//         //         if (c.equals(newCard)) {
+//         //             // console.log("FOUND IN HISTORY");
+//         //             found = true;
+//         //         }
+//         //     });
 
-//             pl.cards.forEach(c => {
-//                 if (c.equals(newCard)) {
-//                     // console.log("FOUND IN DECK");
-//                     found = true;
-//                 }
-//             });
+//         //     pl.cards.forEach(c => {
+//         //         if (c.equals(newCard)) {
+//         //             // console.log("FOUND IN DECK");
+//         //             found = true;
+//         //         }
+//         //     });
 
-//             if (!found) {
-//                 unplayedCards.push(newCard);
-//             }
-//         }
+//         //     if (!found) {
+//         //         unplayedCards.push(newCard);
+//         //     }
+//         // }
 
 //         // check if any unplayed card is higher ranked than this card
-//         let unplayedHigher = unplayedCards.filter(c => c.rank.value > thisCard.rank.value);
+//         let unplayedHigher = unplayedCardsParsed.filter(c => c.rank.value > thisCard.rank.value);
 //         if (unplayedHigher.length == 0) {
 //             console.log("WE CAN WIN");
 //             sureWinnings.push(thisCard);

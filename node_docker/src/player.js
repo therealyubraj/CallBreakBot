@@ -8,20 +8,27 @@ export class Player {
     constructor(pId, nextPId) {
         this.cards = [];
         this.cardNumbers = {
-            'C': 3,
-            'H': 3,
-            'S': 4,
-            'D': 3
+            'C': 0,
+            'H': 0,
+            'S': 0,
+            'D': 0
         };
         this.totalPoints = 0;
         this.calledBid = -1;
         this.wonHands = 0;
         this.playerId = pId;
         this.nextPlayerId = nextPId;
+
+        this.botHasRunOut = {
+            'C': false,
+            'H': false,
+            'S': false,
+            'D': false
+        }
     }
 
     setCards(cards) {
-        this.cards = cards.map(c => new Card(c));
+        this.cards = cards;
 
         this.cardNumbers = {
             'C': 0,
@@ -40,14 +47,7 @@ export class Player {
      * @param {Card} card 
      */
     playCard(card) {
-        if (this.cards.length != 0) {
-            let beforeLen = this.cards.length;
-            this.cards = this.cards.filter(c => !c.equals(card));
-            let afterLen = this.cards.length;
-            if (beforeLen == afterLen) {
-                throw new Error("Card not found");
-            }
-        }
+        this.cards = this.cards.filter(c => !c.equals(card));
         this.cardNumbers[card.suit.code]--;
     }
 
@@ -61,6 +61,7 @@ export class Player {
 
         let spades = this.cardNumbers['S'];
         let trumpWinPrediction = 3;
+
 
         if (spades > 5) {
             count += spades - 5;
@@ -115,6 +116,7 @@ export class Player {
         Object.keys(this.cardNumbers).forEach(c => {
             if (c != 'S' && spades >= trumpWinPrediction && this.cardNumbers[c] < 3) {
                 count++;
+                // trumpWinPrediction++;
             }
         });
 
@@ -249,45 +251,25 @@ export class Player {
         }
     }
 
-    getBotPlayableCards(turnCards, turnHistory, unplayedCards, historyNumber) {
+    getBotPlayableCards(turnCards, turnHistory, unplayedCards, handHistory) {
         if (unplayedCards.length == 0) {
             return [];
         }
 
-        if (turnCards.length == 0) {
-            // console.log(allUnplayed);
-            return unplayedCards.map(c => new Card(c));
-        }
-        let originalSuit = turnCards[0].suit;
-        let unplayedOriginal = unplayedCards.filter(c => c[1] == originalSuit.code);
-
-        let unplayedCardsParsed = unplayedOriginal.map(c => new Card(c));
-        let highestCardPlayed = Player.getHighestCard(turnCards);
-
-        let unplayedHigher = unplayedCardsParsed.filter(c => c.rank.value > highestCardPlayed.rank.value);
-        if (unplayedHigher.length > 0) {
-            unplayedOriginal = unplayedHigher.map(c => c.toString());
-        }
-
-        if (originalSuit.code != 'S') {
-            let unplayedTrump = unplayedCards.filter(c => c[1] == 'S');
-            let unplayedTrumpHigher = [];
-            // find trump card which can win the highest card if highest card is a spade
-            if (highestCardPlayed.suit.code == 'S') {
-                unplayedTrumpHigher = unplayedTrump.map(c => new Card(c)).filter(c => c.rank.value > highestCardPlayed.rank.value);
+        let cardsForBot = [...unplayedCards];
+        Object.keys(this.botHasRunOut).forEach(c => {
+            if (this.botHasRunOut[c]) {
+                cardsForBot = cardsForBot.filter(card => card.suit.code != c);
             }
+        });
 
-            if (unplayedTrumpHigher.length > 0) {
-                unplayedTrump = unplayedTrumpHigher.map(c => c.toString());
-            }
-            unplayedOriginal = unplayedOriginal.concat(unplayedTrump);
-        }
+        // TODO make this mor accurate and short 
 
-        if (unplayedOriginal.length == 0) {
-            return unplayedCards.map(c => new Card(c));
-        }
-
-        return unplayedOriginal.map(c => new Card(c));
+        
+        this.setCards(cardsForBot);
+        let playableCards = this.getAllPlayableCards(turnCards);
+        this.setCards([]);
+        return playableCards.cards;
     }
 
     copy() {
@@ -300,7 +282,12 @@ export class Player {
         newPlayer.calledBid = this.calledBid;
         newPlayer.wonHands = this.wonHands;
         newPlayer.totalPoints = this.totalPoints;
-
+        newPlayer.botHasRunOut = {
+            'C': this.botHasRunOut.C,
+            'D': this.botHasRunOut.D,
+            'H': this.botHasRunOut.H,
+            'S': this.botHasRunOut.S
+        }
         return newPlayer;
     }
 }
