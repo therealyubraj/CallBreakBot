@@ -263,13 +263,35 @@ export class Player {
             }
         });
 
-        // TODO make this mor accurate and short 
 
-        
+        // if the bot has not run out of original cards and if this hand is less than 3 for suit
+        // remove spades from cardsForBot
+        if (turnCards.length > 0) {
+            let origSuit = turnCards[0].suit.code;
+            if (!this.botHasRunOut[origSuit] && handHistory[origSuit] < 3 && origSuit != 'S') {
+                cardsForBot = cardsForBot.filter(card => card.suit.code != 'S');
+            }
+        }
+
+
+        // TODO make this more accurate and short 
+        // make this so that we get one state representing a win/loss
+        // if the bot can hypothethically win, insert one winning card
+        // if the bot cannot win, insert one losing card
+
         this.setCards(cardsForBot);
         let playableCards = this.getAllPlayableCards(turnCards);
         this.setCards([]);
-        return playableCards.cards;
+
+
+        if (playableCards.W) {
+            return playableCards.cards;
+        }
+        if (playableCards.cards.length == 0) {
+            console.log("Here", turnHistory.length);
+            return unplayedCards;
+        }
+        return playableCards.cards.splice(0, 1);
     }
 
     copy() {

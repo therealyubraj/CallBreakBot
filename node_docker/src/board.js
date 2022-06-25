@@ -221,9 +221,18 @@ export class Board {
         let pIndex = nextPlayerIndex;
         while (newBoard.unplayedCards.length > 0) {
             let p = newBoard.playersOrder[pIndex];
-
             if (this.players[p].cards.length == 0) {
-                newCards[p].push(...newBoard.unplayedCards.splice(0, 1));
+                let cardIndex = 0;
+
+                while (!this.players[p].botHasRunOut[newBoard.unplayedCards[cardIndex].suit.code]) {
+                    cardIndex++;
+                    if (cardIndex >= newBoard.unplayedCards.length) {
+                        cardIndex = 0;
+                        break;
+                    }
+                }
+                
+                newCards[p].push(...newBoard.unplayedCards.splice(cardIndex, 1));
             }
             nextPlayer = newBoard.players[nextPlayer].nextPlayerId;
             pIndex = (pIndex + 1) % newBoard.playersOrder.length;
@@ -255,7 +264,7 @@ export class Board {
         wins.sort((a, b) => b.points - a.points);
 
         let scoreRanking = {
-            0: 10,
+            0: 1,
             1: -1,
             2: -2,
             3: -3

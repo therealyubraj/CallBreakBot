@@ -3,7 +3,7 @@
 
 import * as fs from 'fs';
 
-const data = fs.readFileSync('src/games/data_1.json', 'utf8');
+const data = fs.readFileSync('src/games/data_6.json', 'utf8');
 
 let parsedJson = JSON.parse(data);
 

@@ -14,16 +14,19 @@ import {
     Card,
     cardToInteger
 } from "./card.js";
+
 import {
     NN
 } from "./NeuralNetwork.js";
 
-// import * as tf from '@tensorflow/tfjs-node';
+import {
+    shuffle
+} from './Matrix.js';
 
 /**
- * @type Object.<string, Board>
+ * @type Board
  */
-let allBoards = {};
+let mainBoard;
 let time = {};
 let nnData = fs.readFileSync('src/bidder.json', 'utf8');
 let brain = new NN(52, 64, 8, 2);
@@ -168,21 +171,11 @@ function bid(payload) {
     ####################################
     */
 
-    // if anything other than playerIds is in allBoards, delete it
-    Object.keys(allBoards).forEach(key => {
-        if (!json.playerIds.includes(key)) {
-            delete allBoards[key];
-        }
-    });
-
-
-    allBoards[json.playerId] = new Board();
-    let mainBoard = allBoards[json.playerId];
+    mainBoard = new Board();
     mainBoard.setPlayersOrder(json.playerIds);
 
-    Object.keys(allBoards).forEach(playerId => {
-        allBoards[playerId].setPlayerCards(json.playerId, json.cards.map(card => new Card(card)));
-    });
+
+    mainBoard.setPlayerCards(json.playerId, json.cards.map(card => new Card(card)));
 
     // let bid = pred.indexOf(Math.max(...pred));
 
@@ -196,10 +189,21 @@ function bid(payload) {
     });
 
     let nnOp = brain.predict(nnIp).map(x => x.toFixed(4));
-    let bidValue = indexOfMax(nnOp) + 1;
+    let bidValueNN = indexOfMax(nnOp) + 1;
 
-    bidValue += mainBoard.getBid(json.playerId);
-    bidValue = Math.floor(bidValue / 2);
+    let bidValueHeu = mainBoard.getBid(json.playerId);
+
+    //actual bid is 30% of heuristic bid and 70% of neural network bid
+
+    let bidPercent = {
+        'H': 0.2,
+        'N': 0.8
+    }
+
+    let bidValue = Math.floor(bidValueHeu * bidPercent['H'] + bidValueNN * bidPercent['N']);
+
+    // cap bid at 1 to 8
+    bidValue = Math.max(Math.min(bidValue, 8), 1);
 
     console.log(nnOp, bidValue);
 
@@ -286,7 +290,6 @@ function play(payload) {
     //         value: -1
     //     };
     // }
-    let mainBoard = allBoards[json.playerId];
 
     if (json.history.length != 0) {
         mainBoard.addToHistory(json.history[json.history.length - 1][1].map(card => new Card(card)));
@@ -294,31 +297,13 @@ function play(payload) {
     mainBoard.startNewHand();
     mainBoard.updatePlayerInfo(json.context.players);
     mainBoard.setThrownCards(json.played.map(card => new Card(card)), json.playerId);
-    // console.log(mainBoard.unplayedCards);
-    mainBoard.readyChildren();
 
-    let childrenToTime = {
-        1: 50,
-        2: 50,
-        3: 50,
-        4: 75,
-        5: 75,
-        6: 75,
-        7: 75,
-        8: 75,
-        9: 150,
-        10: 150,
-        11: 150,
-        12: 150,
-        13: 150
-    }
-
-    let playCard = monteCarlo(mainBoard, childrenToTime[mainBoard.children.length], json.playerId);
+    let playCard = monteCarlo(mainBoard, 100, json.playerId);
     // let playCard = bestMoveChooser(mainBoard.players[json.playerId], json.played, mainBoard.unplayedCards);
 
-    Object.keys(allBoards).forEach(playerId => {
-        allBoards[playerId].playCard(playCard, json.playerId);
-    });
+    mainBoard.playCard(playCard, json.playerId);
+
+
     return {
         value: playCard.toString(),
     };

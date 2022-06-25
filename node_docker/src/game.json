@@ -1,24 +1,263 @@
 {
-    "players": ["Bot 1", "Uvryptic2", "Bot 0", "Uvryptic1"],
+    "players": ["Bibek Panthi", "TezZeract", "King Crimson", "Uvryptic"],
     "rounds": [{
+        "dealer": 0,
+        "cards": [
+            ["JS", "8S", "7S", "2S", "1H", "KH", "9H", "8H", "6H", "5H", "5C", "KD", "JD"],
+            ["TS", "9S", "6S", "5S", "4S", "TC", "9C", "6C", "1D", "TD", "7D", "4D", "2D"],
+            ["1S", "JH", "TH", "7H", "4H", "3H", "1C", "JC", "4C", "2C", "QD", "5D", "3D"],
+            ["KS", "QS", "3S", "QH", "2H", "KC", "QC", "8C", "7C", "3C", "9D", "8D", "6D"]
+        ],
+        "bids": [4, 3, 1, 2],
+        "errors": {},
+        "actions": [{
+            "started": 1,
+            "cards": ["1D", "3D", "6D", "JD"],
+            "ended": 1
+        }, {
+            "started": 1,
+            "cards": ["2D", "5D", "8D", "KD"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["1H", "4S", "3H", "2H"],
+            "ended": 1
+        }, {
+            "started": 1,
+            "cards": ["4D", "QD", "9D", "2S"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["5C", "6C", "1C", "3C"],
+            "ended": 2
+        }, {
+            "started": 2,
+            "cards": ["2C", "KC", "7S", "9C"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["6H", "5S", "4H", "QH"],
+            "ended": 1
+        }, {
+            "started": 1,
+            "cards": ["TC", "JC", "QC", "8S"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["5H", "6S", "7H", "KS"],
+            "ended": 3
+        }, {
+            "started": 3,
+            "cards": ["8C", "JS", "7D", "4C"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["9H", "9S", "TH", "QS"],
+            "ended": 3
+        }, {
+            "started": 3,
+            "cards": ["7C", "8H", "TS", "1S"],
+            "ended": 2
+        }, {
+            "started": 2,
+            "cards": ["JH", "3S", "KH", "TD"],
+            "ended": 3
+        }],
+        "scores": [4.1, 3, 1.1, 2.1],
+        "responseTimes": [1033.2, 91.3, 51.4, 1309.7]
+    }, {
         "dealer": 1,
         "cards": [
-            ["JS", "9S", "8S", "6H", "KC", "QC", "JC", "TC", "9C", "QD", "9D", "8D", "4D"],
-            ["1S", "KS", "JH", "TH", "9H", "7H", "1C", "8C", "6C", "2C", "KD", "JD", "7D"],
-            ["QS", "7S", "6S", "4S", "3S", "KH", "QH", "8H", "5H", "4H", "3H", "3C", "1D"],
-            ["TS", "5S", "2S", "1H", "2H", "7C", "5C", "4C", "TD", "6D", "5D", "3D", "2D"]
+            ["KS", "TS", "9S", "7S", "4S", "2S", "1H", "7C", "5C", "1D", "KD", "JD", "4D"],
+            ["3S", "QH", "TH", "6H", "1C", "KC", "QC", "JC", "TC", "4C", "QD", "9D", "7D"],
+            ["QS", "6S", "5S", "9H", "8H", "7H", "2H", "8C", "6C", "8D", "5D", "3D", "2D"],
+            ["1S", "JS", "8S", "KH", "JH", "5H", "4H", "3H", "9C", "3C", "2C", "TD", "6D"]
         ],
-        "bids": [0, 0, 4, 0],
+        "bids": [7, 2, 1, 2],
+        "errors": {},
+        "actions": [{
+            "started": 2,
+            "cards": ["6C", "9C", "5C", "TC"],
+            "ended": 1
+        }, {
+            "started": 1,
+            "cards": ["9D", "2D", "TD", "JD"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["2S", "3S", "5S", "8S"],
+            "ended": 3
+        }, {
+            "started": 3,
+            "cards": ["6D", "1D", "7D", "3D"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["KD", "QD", "5D", "JS"],
+            "ended": 3
+        }, {
+            "started": 3,
+            "cards": ["4H", "1H", "6H", "2H"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["KS", "4C", "6S", "1S"],
+            "ended": 3
+        }, {
+            "started": 3,
+            "cards": ["KH", "4S", "TH", "7H"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["4D", "JC", "8D", "3C"],
+            "ended": 2
+        }, {
+            "started": 2,
+            "cards": ["8H", "JH", "7S", "QH"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["7C", "1C", "8C", "2C"],
+            "ended": 1
+        }, {
+            "started": 1,
+            "cards": ["KC", "QS", "5H", "9S"],
+            "ended": 2
+        }, {
+            "started": 2,
+            "cards": ["9H", "3H", "TS", "QC"],
+            "ended": 0
+        }],
+        "scores": [-2.9, 5, 2.2, 4.2],
+        "responseTimes": [1136.5, 44.9, 35.8, 1266]
+    }, {
+        "dealer": 2,
+        "cards": [
+            ["6S", "QH", "JH", "TH", "6H", "3H", "JC", "4C", "2C", "1D", "JD", "7D", "6D"],
+            ["1S", "QS", "TS", "1H", "8H", "7H", "2H", "KC", "TC", "7C", "6C", "8D", "3D"],
+            ["JS", "9S", "8S", "5S", "5H", "1C", "QC", "5C", "3C", "KD", "TD", "9D", "4D"],
+            ["KS", "7S", "4S", "3S", "2S", "KH", "9H", "4H", "9C", "8C", "QD", "5D", "2D"]
+        ],
+        "bids": [1, 4, 3, 2],
+        "errors": {},
+        "actions": [{
+            "started": 3,
+            "cards": ["5D", "1D", "3D", "4D"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["2C", "6C", "1C", "8C"],
+            "ended": 2
+        }, {
+            "started": 2,
+            "cards": ["KD", "2D", "6D", "8D"],
+            "ended": 2
+        }, {
+            "started": 2,
+            "cards": ["5H", "9H", "QH", "1H"],
+            "ended": 1
+        }, {
+            "started": 1,
+            "cards": ["1S", "5S", "7S", "6S"],
+            "ended": 1
+        }, {
+            "started": 1,
+            "cards": ["KC", "3C", "9C", "4C"],
+            "ended": 1
+        }, {
+            "started": 1,
+            "cards": ["2H", "8S", "4H", "3H"],
+            "ended": 2
+        }, {
+            "started": 2,
+            "cards": ["5C", "3S", "JC", "7C"],
+            "ended": 3
+        }, {
+            "started": 3,
+            "cards": ["4S", "6H", "TS", "JS"],
+            "ended": 2
+        }, {
+            "started": 2,
+            "cards": ["9D", "QD", "7D", "QS"],
+            "ended": 1
+        }, {
+            "started": 1,
+            "cards": ["TC", "QC", "2S", "TH"],
+            "ended": 3
+        }, {
+            "started": 3,
+            "cards": ["KS", "JH", "7H", "9S"],
+            "ended": 3
+        }, {
+            "started": 3,
+            "cards": ["KH", "JD", "8H", "TD"],
+            "ended": 3
+        }],
+        "scores": [-1.9, 9, 5.3, 6.4],
+        "responseTimes": [567.3, 45.6, 31.9, 1235]
+    }, {
+        "dealer": 3,
+        "cards": [
+            ["1S", "8S", "1H", "QH", "JH", "4H", "3H", "9C", "8C", "1D", "KD", "8D", "2D"],
+            ["KS", "9S", "5S", "4S", "2S", "8H", "7H", "5H", "1C", "KC", "6C", "QD", "4D"],
+            ["JS", "3S", "9H", "QC", "JC", "TC", "7C", "5C", "4C", "TD", "9D", "6D", "5D"],
+            ["QS", "TS", "7S", "6S", "KH", "TH", "6H", "2H", "3C", "2C", "JD", "7D", "3D"]
+        ],
+        "bids": [4, 4, 1, 2],
         "errors": {
-            "-1": [{
+            "10": [{
                 "type": "TIMEOUT",
                 "turn": 3,
                 "correction": null
             }]
         },
-        "actions": [],
-        "scores": [0, 0, -4, 0],
-        "responseTimes": [0, 0, 0, 1500]
+        "actions": [{
+            "started": 0,
+            "cards": ["1S", "2S", "3S", "7S"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["9C", "1C", "4C", "2C"],
+            "ended": 1
+        }, {
+            "started": 1,
+            "cards": ["KS", "JS", "QS", "8S"],
+            "ended": 1
+        }, {
+            "started": 1,
+            "cards": ["KC", "5C", "3C", "8C"],
+            "ended": 1
+        }, {
+            "started": 1,
+            "cards": ["6C", "7C", "6S", "3H"],
+            "ended": 3
+        }, {
+            "started": 3,
+            "cards": ["TH", "1H", "5H", "9H"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["QH", "7H", "5D", "KH"],
+            "ended": 3
+        }, {
+            "started": 3,
+            "cards": ["TS", "4H", "4S", "6D"],
+            "ended": 3
+        }, {
+            "started": 3,
+            "cards": ["3D", "KD", "4D", "9D"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["JH", "8H", "TD", "6H"],
+            "ended": 0
+        }, {
+            "started": 0,
+            "cards": ["1D", "QD", "TC", null],
+            "ended": null
+        }],
+        "scores": [2.1, 5, 4.3, 8.5],
+        "responseTimes": [1235.1, 38.9, 27.9, 1500]
     }],
     "ranks": [-3, 1, -3, 1, -3, 1, -3, 1]
 }
